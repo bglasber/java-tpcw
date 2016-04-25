@@ -46,6 +46,11 @@
    		<javac srcdir="${srcDir}" destdir="${buildDir}">
    			<classpath>
    				<pathelement path="${classpath}"/>
+                                <pathelement path="lib/jersey-core-1.9.jar" />
+                                <pathelement path="lib/jersey-json-1.9.jar" />
+                                <pathelement path="lib/jersey-client-1.9.jar" />
+                                <pathelement path="lib/commons-lang3-3.0.jar" />
+                                <pathelement path="lib/jettison-1.1.jar" />
    				<pathelement location="${cpServ}"/>
    			</classpath>
    		</javac>
