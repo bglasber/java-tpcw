@@ -58,42 +58,86 @@ import java.util.Date;
 import java.util.Vector;
 import java.sql.*;
 
+import java.text.SimpleDateFormat;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+
+
 //Glorified struct to pass order information from the DB to servlets
 
 public class Order {
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
     public Order(ResultSet rs) {
-	try {
-	    o_id = rs.getInt("o_id");
-	    c_fname = rs.getString("c_fname");
-	    c_lname = rs.getString("c_lname");
-	    c_passwd = rs.getString("c_passwd");
-	    c_uname = rs.getString("c_uname");
-	    c_phone = rs.getString("c_phone");
-	    c_email = rs.getString("c_email");
-	    o_date = rs.getDate("o_date");
-	    o_subtotal = rs.getDouble("o_sub_total");
-	    o_tax = rs.getDouble("o_tax");
-	    o_total = rs.getDouble("o_total");
-	    o_ship_type = rs.getString("o_ship_type");
-	    o_ship_date = rs.getDate("o_ship_date");
-	    o_status = rs.getString("o_status");
-	    cx_type = rs.getString("cx_type");
-	    
-	    bill_addr_street1 = rs.getString("bill_addr_street1");
-	    bill_addr_street2 = rs.getString("bill_addr_street2");
-	    bill_addr_state = rs.getString("bill_addr_state");
-	    bill_addr_zip = rs.getString("bill_addr_zip");
-	    bill_co_name = rs.getString("bill_co_name");
-	    
-	    ship_addr_street1 = rs.getString("ship_addr_street1");
-	    ship_addr_street2 = rs.getString("ship_addr_street2");
-	    ship_addr_state = rs.getString("ship_addr_state");
-	    ship_addr_zip = rs.getString("ship_addr_zip");
-	    ship_co_name = rs.getString("ship_co_name");
-	} catch (java.lang.Exception ex) {
-	    ex.printStackTrace();
-	}
+        try {
+            o_id = rs.getInt("o_id");
+            c_fname = rs.getString("c_fname");
+            c_lname = rs.getString("c_lname");
+            c_passwd = rs.getString("c_passwd");
+            c_uname = rs.getString("c_uname");
+            c_phone = rs.getString("c_phone");
+            c_email = rs.getString("c_email");
+            o_date = rs.getDate("o_date");
+            o_subtotal = rs.getDouble("o_sub_total");
+            o_tax = rs.getDouble("o_tax");
+            o_total = rs.getDouble("o_total");
+            o_ship_type = rs.getString("o_ship_type");
+            o_ship_date = rs.getDate("o_ship_date");
+            o_status = rs.getString("o_status");
+            cx_type = rs.getString("cx_type");
+
+            bill_addr_street1 = rs.getString("bill_addr_street1");
+            bill_addr_street2 = rs.getString("bill_addr_street2");
+            bill_addr_state = rs.getString("bill_addr_state");
+            bill_addr_zip = rs.getString("bill_addr_zip");
+            bill_co_name = rs.getString("bill_co_name");
+
+            ship_addr_street1 = rs.getString("ship_addr_street1");
+            ship_addr_street2 = rs.getString("ship_addr_street2");
+            ship_addr_state = rs.getString("ship_addr_state");
+            ship_addr_zip = rs.getString("ship_addr_zip");
+            ship_co_name = rs.getString("ship_co_name");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
     }
+
+    public Order(JSONObject obj) {
+        try {
+            o_id = obj.getInt("o_id");
+            c_fname = obj.getString("c_fname");
+            c_lname = obj.getString("c_lname");
+            c_passwd = obj.getString("c_passwd");
+            c_uname = obj.getString("c_uname");
+            c_phone = obj.getString("c_phone");
+            c_email = obj.getString("c_email");
+            o_date = sdf.parse(obj.getString("o_date"));
+            o_subtotal = obj.getDouble("o_sub_total");
+            o_tax = obj.getDouble("o_tax");
+            o_total = obj.getDouble("o_total");
+            o_ship_type = obj.getString("o_ship_type");
+            o_ship_date = sdf.parse(obj.getString("o_ship_date"));
+            o_status = obj.getString("o_status");
+            cx_type = obj.getString("cx_type");
+
+            bill_addr_street1 = obj.getString("bill_addr_street1");
+            bill_addr_street2 = obj.getString("bill_addr_street2");
+            bill_addr_state = obj.getString("bill_addr_state");
+            bill_addr_zip = obj.getString("bill_addr_zip");
+            bill_co_name = obj.getString("bill_co_name");
+
+            ship_addr_street1 = obj.getString("ship_addr_street1");
+            ship_addr_street2 = obj.getString("ship_addr_street2");
+            ship_addr_state = obj.getString("ship_addr_state");
+            ship_addr_zip = obj.getString("ship_addr_zip");
+            ship_co_name = obj.getString("ship_co_name");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     public int o_id;
     public String c_fname;

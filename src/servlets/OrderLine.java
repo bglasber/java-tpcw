@@ -57,20 +57,39 @@ package servlets;
 
 import java.sql.*;
 
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
+
 public class OrderLine {
+
     public OrderLine(ResultSet rs) {
-	try {
-	    ol_i_id = rs.getInt("ol_i_id");
-	    i_title = rs.getString("i_title");
-	    i_publisher = rs.getString("i_publisher");
-	    i_cost = rs.getDouble("i_cost");
-	    ol_qty = rs.getInt("ol_qty");
-	    ol_discount = rs.getDouble("ol_discount");
-	    ol_comments = rs.getString("ol_comments");
-	} catch (java.lang.Exception ex) {
-	    ex.printStackTrace();
-	}
+        try {
+            ol_i_id = rs.getInt("ol_i_id");
+            i_title = rs.getString("i_title");
+            i_publisher = rs.getString("i_publisher");
+            i_cost = rs.getDouble("i_cost");
+            ol_qty = rs.getInt("ol_qty");
+            ol_discount = rs.getDouble("ol_discount");
+            ol_comments = rs.getString("ol_comments");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
     }
+
+    public OrderLine(JSONObject obj) {
+        try {
+            ol_i_id = obj.getInt("ol_i_id");
+            i_title = obj.getString("i_title");
+            i_publisher = obj.getString("i_publisher");
+            i_cost = obj.getDouble("i_cost");
+            ol_qty = obj.getInt("ol_qty");
+            ol_discount = obj.getDouble("ol_discount");
+            ol_comments = obj.getString("ol_comments");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
 
     public int ol_i_id;
     public String i_title;

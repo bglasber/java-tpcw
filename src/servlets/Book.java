@@ -61,46 +61,83 @@ package servlets;
 
 import java.util.Date;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 
 public class Book {
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     // Construct a book from a ResultSet
     public Book(ResultSet rs) {
-	// The result set should have all of the fields we expect.
-	// This relies on using field name access.  It might be a bad
-	// way to break this up since it does not allow us to use the
-	// more efficient select by index access method.  This also
-	// might be a problem since there is no type checking on the
-	// result set to make sure it is even a reasonble result set
-	// to give to this function.
-       
-	try {
-	    i_id = rs.getInt("i_id");
-	    i_title = rs.getString("i_title");
-	    i_pub_Date = rs.getDate("i_pub_date");
-	    i_publisher = rs.getString("i_publisher");
-	    i_subject = rs.getString("i_subject");
-	    i_desc = rs.getString("i_desc");
-	    i_related1 = rs.getInt("i_related1");
-	    i_related2 = rs.getInt("i_related2");
-	    i_related3 = rs.getInt("i_related3");
-	    i_related4 = rs.getInt("i_related4");
-	    i_related5 = rs.getInt("i_related5");
-	    i_thumbnail = rs.getString("i_thumbnail");
-	    i_image = rs.getString("i_image");
-	    i_srp = rs.getDouble("i_srp");
-	    i_cost = rs.getDouble("i_cost");
-	    i_avail = rs.getDate("i_avail");
-	    i_isbn = rs.getString("i_isbn");
-	    i_page = rs.getInt("i_page");
-	    i_backing = rs.getString("i_backing");
-	    i_dimensions = rs.getString("i_dimensions");
-	    a_id = rs.getInt("a_id");
-	    a_fname = rs.getString("a_fname");
-	    a_lname = rs.getString("a_lname");		
-	} catch (java.lang.Exception ex) {
-	    ex.printStackTrace();
-	}
+        // The result set should have all of the fields we expect.
+        // This relies on using field name access.  It might be a bad
+        // way to break this up since it does not allow us to use the
+        // more efficient select by index access method.  This also
+        // might be a problem since there is no type checking on the
+        // result set to make sure it is even a reasonble result set
+        // to give to this function.
+
+        try {
+            i_id = rs.getInt("i_id");
+            i_title = rs.getString("i_title");
+            i_pub_Date = rs.getDate("i_pub_date");
+            i_publisher = rs.getString("i_publisher");
+            i_subject = rs.getString("i_subject");
+            i_desc = rs.getString("i_desc");
+            i_related1 = rs.getInt("i_related1");
+            i_related2 = rs.getInt("i_related2");
+            i_related3 = rs.getInt("i_related3");
+            i_related4 = rs.getInt("i_related4");
+            i_related5 = rs.getInt("i_related5");
+            i_thumbnail = rs.getString("i_thumbnail");
+            i_image = rs.getString("i_image");
+            i_srp = rs.getDouble("i_srp");
+            i_cost = rs.getDouble("i_cost");
+            i_avail = rs.getDate("i_avail");
+            i_isbn = rs.getString("i_isbn");
+            i_page = rs.getInt("i_page");
+            i_backing = rs.getString("i_backing");
+            i_dimensions = rs.getString("i_dimensions");
+            a_id = rs.getInt("a_id");
+            a_fname = rs.getString("a_fname");
+            a_lname = rs.getString("a_lname");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+
+    public Book(JSONObject obj){
+        try {
+            i_id = obj.getInt("i_id");
+            i_title = obj.getString("i_title");
+            i_pub_Date = sdf.parse(obj.getString("i_pub_date"));
+            i_publisher = obj.getString("i_publisher");
+            i_subject = obj.getString("i_subject");
+            i_desc = obj.getString("i_desc");
+            i_related1 = obj.getInt("i_related1");
+            i_related2 = obj.getInt("i_related2");
+            i_related3 = obj.getInt("i_related3");
+            i_related4 = obj.getInt("i_related4");
+            i_related5 = obj.getInt("i_related5");
+            i_thumbnail = obj.getString("i_thumbnail");
+            i_image = obj.getString("i_image");
+            i_srp = obj.getDouble("i_srp");
+            i_cost = obj.getDouble("i_cost");
+            i_avail = sdf.parse(obj.getString("i_avail"));
+            i_isbn = obj.getString("i_isbn");
+            i_page = obj.getInt("i_page");
+            i_backing = obj.getString("i_backing");
+            i_dimensions = obj.getString("i_dimensions");
+            a_id = obj.getInt("a_id");
+            a_fname = obj.getString("a_fname");
+            a_lname = obj.getString("a_lname");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
+
     // From Item
     public int i_id;
     public String i_title;

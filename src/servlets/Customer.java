@@ -55,9 +55,14 @@ package servlets;
 
 import java.sql.*;
 import java.util.Date;
+import java.text.SimpleDateFormat;
+import org.codehaus.jettison.json.JSONObject;
+
 
 //glorified struct used for passing customer info around.
 public class Customer {
+
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     public int c_id;
     public String c_uname;
@@ -91,46 +96,89 @@ public class Customer {
     public Customer(){}
 
     public Customer(ResultSet rs) {
-	// The result set should have all of the fields we expect.
-	// This relies on using field name access.  It might be a bad
-	// way to break this up since it does not allow us to use the
-	// more efficient select by index access method.  This also
-	// might be a problem since there is no type checking on the
-	// result set to make sure it is even a reasonble result set
-	// to give to this function.
-       
-	try {
-	    c_id = rs.getInt("c_id");
-	    c_uname = rs.getString("c_uname");
-	    c_passwd = rs.getString("c_passwd");
-	    c_fname = rs.getString("c_fname");
-	    c_lname = rs.getString("c_lname");
+        // The result set should have all of the fields we expect.
+        // This relies on using field name access.  It might be a bad
+        // way to break this up since it does not allow us to use the
+        // more efficient select by index access method.  This also
+        // might be a problem since there is no type checking on the
+        // result set to make sure it is even a reasonble result set
+        // to give to this function.
 
-	    c_phone = rs.getString("c_phone");
-	    c_email = rs.getString("c_email");
-	    c_since = rs.getDate("c_since");
-	    c_last_visit = rs.getDate("c_last_login");
-	    c_login = rs.getDate("c_login");
-	    c_expiration = rs.getDate("c_expiration");
-	    c_discount = rs.getDouble("c_discount");
-	    c_balance = rs.getDouble("c_balance");
-	    c_ytd_pmt = rs.getDouble("c_ytd_pmt");
-	    c_birthdate = rs.getDate("c_birthdate");
-	    c_data = rs.getString("c_data");
+        try {
+            c_id = rs.getInt("c_id");
+            c_uname = rs.getString("c_uname");
+            c_passwd = rs.getString("c_passwd");
+            c_fname = rs.getString("c_fname");
+            c_lname = rs.getString("c_lname");
 
-	    addr_id = rs.getInt("addr_id");
-	    addr_street1 = rs.getString("addr_street1");
-	    addr_street2 = rs.getString("addr_street2");
-	    addr_city = rs.getString("addr_city");
-	    addr_state = rs.getString("addr_state");
-	    addr_zip = rs.getString("addr_zip");
-	    addr_co_id = rs.getInt("addr_co_id");
+            c_phone = rs.getString("c_phone");
+            c_email = rs.getString("c_email");
+            c_since = rs.getDate("c_since");
+            c_last_visit = rs.getDate("c_last_login");
+            c_login = rs.getDate("c_login");
+            c_expiration = rs.getDate("c_expiration");
+            c_discount = rs.getDouble("c_discount");
+            c_balance = rs.getDouble("c_balance");
+            c_ytd_pmt = rs.getDouble("c_ytd_pmt");
+            c_birthdate = rs.getDate("c_birthdate");
+            c_data = rs.getString("c_data");
 
-	    co_name = rs.getString("co_name");
-	    
-	} catch (java.lang.Exception ex) {
-	    ex.printStackTrace();
-	}
+            addr_id = rs.getInt("addr_id");
+            addr_street1 = rs.getString("addr_street1");
+            addr_street2 = rs.getString("addr_street2");
+            addr_city = rs.getString("addr_city");
+            addr_state = rs.getString("addr_state");
+            addr_zip = rs.getString("addr_zip");
+            addr_co_id = rs.getInt("addr_co_id");
+
+            co_name = rs.getString("co_name");
+
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
     }
-    
+
+
+    public Customer(JSONObject obj) {
+        // The result set should have all of the fields we expect.
+        // This relies on using field name access.  It might be a bad
+        // way to break this up since it does not allow us to use the
+        // more efficient select by index access method.  This also
+        // might be a problem since there is no type checking on the
+        // result set to make sure it is even a reasonble result set
+        // to give to this function.
+
+        try {
+            c_id = obj.getInt("c_id");
+            c_uname = obj.getString("c_uname");
+            c_passwd = obj.getString("c_passwd");
+            c_fname = obj.getString("c_fname");
+            c_lname = obj.getString("c_lname");
+
+            c_phone = obj.getString("c_phone");
+            c_email = obj.getString("c_email");
+            c_since = sdf.parse(obj.getString("c_since"));
+            c_last_visit = sdf.parse(obj.getString("c_last_login"));
+            c_login = sdf.parse(obj.getString("c_login"));
+            c_expiration = sdf.parse(obj.getString("c_expiration"));
+            c_discount = obj.getDouble("c_discount");
+            c_balance = obj.getDouble("c_balance");
+            c_ytd_pmt = obj.getDouble("c_ytd_pmt");
+            c_birthdate = sdf.parse(obj.getString("c_birthdate"));
+            c_data = obj.getString("c_data");
+
+            addr_id = obj.getInt("addr_id");
+            addr_street1 = obj.getString("addr_street1");
+            addr_street2 = obj.getString("addr_street2");
+            addr_city = obj.getString("addr_city");
+            addr_state = obj.getString("addr_state");
+            addr_zip = obj.getString("addr_zip");
+            addr_co_id = obj.getInt("addr_co_id");
+
+            co_name = obj.getString("co_name");
+
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

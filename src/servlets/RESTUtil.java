@@ -37,7 +37,7 @@ public class RESTUtil {
         }
     }
 
-    protected static Builder makeRestConnection(long terminalID) {
+    public static Builder makeRestConnection(long terminalID) {
         Client client = new Client();
         String path = "pathToKronosAPI";
         // TODO: @anilpacaci Kronos needs this to differentiate different threads
