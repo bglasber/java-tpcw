@@ -112,7 +112,7 @@ public class SQL extends Loader {
 
 	public static String createEmptyCart="SELECT COUNT(*) FROM shopping_cart";
 	public static String createEmptyCart_insert="INSERT into shopping_cart (sc_id, sc_time) " +
-		     "VALUES ((SELECT COUNT(*) FROM shopping_cart)," +
+		     "VALUES ((SELECT COUNT(*) FROM ( SELECT * FROM shopping_cart) AS tab)," +
 		     "CURRENT TIMESTAMP)";
 
 	public static String addItem="SELECT scl_qty FROM shopping_cart_line WHERE scl_sc_id = ? AND scl_i_id = ?";

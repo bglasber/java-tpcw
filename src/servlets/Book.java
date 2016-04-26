@@ -68,7 +68,7 @@ import org.codehaus.jettison.json.JSONObject;
 
 public class Book {
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     // Construct a book from a ResultSet
     public Book(ResultSet rs) {
         // The result set should have all of the fields we expect.

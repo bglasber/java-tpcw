@@ -36,7 +36,7 @@ public class TPCW_REST {
         String stmt = SQL.getBook;
         try {
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(i_id));
-            Book b = new Book(rs.getJSONObject(0));
+            book = new Book(rs.getJSONObject(0));
         } catch( SQLException | JSONException e ) {
             e.printStackTrace();
         }
@@ -48,7 +48,7 @@ public class TPCW_REST {
         Customer cust = null;
         String stmt = SQL.getCustomer;
         try {
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, uname);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + uname + "'");
             cust = new Customer(rs.getJSONObject(0));
         } catch( SQLException | JSONException e ){
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class TPCW_REST {
         Vector vec = new Vector();
         try {
             String stmt = SQL.doSubjectSearch;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, searchKey);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + searchKey + "'" );
             for(int i = 0; i < rs.length(); i++){
                 Book b = new Book(rs.getJSONObject(i));
                 vec.addElement(b);
@@ -75,7 +75,7 @@ public class TPCW_REST {
         Vector vec = new Vector();
         try {
             String stmt = SQL.doTitleSearch;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, searchKey);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + searchKey + "'");
             for(int i = 0; i < rs.length(); i++){
                 Book b = new Book(rs.getJSONObject(i));
                 vec.addElement(b);
@@ -90,7 +90,7 @@ public class TPCW_REST {
         Vector vec = new Vector();
         try {
             String stmt = SQL.doAuthorSearch;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, searchKey);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + searchKey + "'");
             for(int i = 0; i < rs.length(); i++){
                 Book b = new Book(rs.getJSONObject(i));
                 vec.addElement(b);
@@ -105,7 +105,7 @@ public class TPCW_REST {
         Vector vec = new Vector();
         try {
             String stmt = SQL.getNewProducts;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, subject);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + subject + "'");
             for(int i = 0; i < rs.length(); i++){
                 ShortBook b = new ShortBook(rs.getJSONObject(i));
                 vec.addElement(b);
@@ -120,7 +120,7 @@ public class TPCW_REST {
         Vector vec = new Vector();
         try {
             String stmt = SQL.getBestSellers;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, subject);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + subject + "'");
             for(int i = 0; i < rs.length(); i++){
                 ShortBook b = new ShortBook(rs.getJSONObject(i));
                 vec.addElement(b);
@@ -141,8 +141,8 @@ public class TPCW_REST {
             for(int i = 0; i < rs.length(); i++){
                 JSONObject obj = rs.getJSONObject(i);
                 //There's a really high chance this doesn't work, test this later
-                i_id_vec.addElement(new Integer(obj.getString("J.i_id")));
-                i_thumbnail_vec.addElement(obj.getString("J.i_thumbnail"));
+                i_id_vec.addElement(new Integer(obj.getString("i_id")));
+                i_thumbnail_vec.addElement(obj.getString("i_thumbnail"));
             }
         }catch( SQLException | JSONException e ){
             e.printStackTrace();
@@ -152,7 +152,7 @@ public class TPCW_REST {
     public static void adminUpdate(int i_id, double cost, String image, String thumbnail){
         try{
             String stmt = SQL.adminUpdate;
-            RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(cost), image, thumbnail, String.valueOf(i_id));
+            RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(cost), "'" + image + "'", "'" + thumbnail + "'", String.valueOf(i_id));
             stmt = SQL.adminUpdate_related;
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(i_id), String.valueOf(i_id));
 
@@ -201,7 +201,7 @@ public class TPCW_REST {
         String passwd = null;
         try {
             String stmt = SQL.getPassword;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, cUname);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + cUname + "'");
             passwd = rs.getJSONObject(0).getString("c_passwd");
         } catch( SQLException | JSONException e ){
             e.printStackTrace();
@@ -216,7 +216,7 @@ public class TPCW_REST {
             Order order;
 
             String stmt = SQL.getMostRecentOrder_id;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, cUname);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + cUname + "'");
             if( rs.length() > 0 ) {
                 order_id = rs.getJSONObject(0).getInt("o_id");
             } else {
@@ -280,7 +280,7 @@ public class TPCW_REST {
     public static void addItem(int SHOPPING_ID, int I_ID){
         String stmt = SQL.addItem;
         try{
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, 
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt,
                 String.valueOf(SHOPPING_ID), String.valueOf(I_ID));
             if( rs.length() > 0 ){
                 int currqty = rs.getJSONObject(0).getInt("scl_qty");
@@ -380,7 +380,7 @@ public class TPCW_REST {
     }
 
     public static Customer createNewCustomer(Customer cust){
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             cust.c_discount = (int) (java.lang.Math.random() * 51);
             cust.c_balance =0.0;
@@ -413,21 +413,21 @@ public class TPCW_REST {
                 String createNewCustomerStmt = SQL.createNewCustomer;
                 RESTUtil.executeUpdateQuery(builder, createNewCustomerStmt,
                         String.valueOf(cust.c_id),
-                        cust.c_uname,
-                        cust.c_passwd,
-                        cust.c_fname,
-                        cust.c_lname,
+                        "'" + cust.c_uname + "'",
+                        "'" + cust.c_passwd + "'",
+                        "'" + cust.c_fname + "'",
+                        "'" + cust.c_lname + "'",
                         String.valueOf(cust.addr_id),
-                        cust.c_phone,
-                        cust.c_email,
-                        sdf.format(cust.c_since),
-                        sdf.format(cust.c_last_visit),
-                        sdf.format(cust.c_login),
-                        sdf.format(cust.c_expiration),
+                        "'" + cust.c_phone + "'",
+                        "'" + cust.c_email + "'",
+                        "'" + sdf.format(cust.c_since) + "'",
+                        "'" + sdf.format(cust.c_last_visit) + "'",
+                        "'" + sdf.format(cust.c_login) + "'",
+                        "'" + sdf.format(cust.c_expiration) + "'",
                         String.valueOf(cust.c_discount),
                         String.valueOf(cust.c_balance),
                         String.valueOf(cust.c_ytd_pmt),
-                        sdf.format(cust.c_birthdate),
+                        "'" + sdf.format(cust.c_birthdate) + "'",
                         cust.c_data);
             }
         } catch (java.lang.Exception ex) {
@@ -441,12 +441,12 @@ public class TPCW_REST {
         int addr_id = 0;
         try{
             String stmt = SQL.enterAddress_id;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, country);
+            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + country + "'");
             int addr_co_id = rs.getJSONObject(0).getInt("co_id");
 
             stmt = SQL.enterAddress_match;
-            rs = RESTUtil.executeSelectQuery(builder, stmt, street1, street2, city, state,
-                                                       zip, String.valueOf(addr_co_id));
+            rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + street1 + "'", "'" + street2 + "'", "'" + city + "'", "'" + state + "'",
+                                                       "'" + zip + "'", String.valueOf(addr_co_id));
             //Miss on addr table
             if( rs.length() == 0 ) {
                 synchronized(Address.class){
@@ -456,7 +456,7 @@ public class TPCW_REST {
                     addr_id = rs2.getJSONObject(0).getInt("max(addr_id)") + 1;
                     String insertAddrStmt = SQL.enterAddress_insert;
                     RESTUtil.executeUpdateQuery(builder, insertAddrStmt, String.valueOf(addr_id),
-                                                street1, street2, city, state, zip,
+                                                "'" + street1 + "'", "'" + street2 + "'", "'" + city + "'", "'" + state + "'", "'" + zip + "'",
                                                 String.valueOf(addr_co_id));
                 }
 
@@ -534,7 +534,7 @@ public class TPCW_REST {
     public static void enterCCXact(int o_id, String cc_type, long cc_number, String cc_name,
                                    Date cc_expiry, double total, int ship_addr_id){
 
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         if(cc_type.length() > 10)
             cc_type = cc_type.substring(0,10);
@@ -542,9 +542,9 @@ public class TPCW_REST {
             cc_name = cc_name.substring(0,30);
         try{
             String stmt = SQL.enterCCXact;
-            RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(o_id), cc_type, 
-                                        String.valueOf(cc_number), cc_name,
-                                        sdf.format(cc_expiry), String.valueOf(total),
+            RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(o_id), "'" + cc_type + "'",
+                                        String.valueOf(cc_number), "'" + cc_name + "'",
+                                        "'" + sdf.format(cc_expiry) + "'", String.valueOf(total),
                                         String.valueOf(ship_addr_id));
         } catch( java.lang.Exception ex ) {
             ex.printStackTrace();
@@ -574,7 +574,7 @@ public class TPCW_REST {
                                             String.valueOf(customer_id),
                                             String.valueOf(cart.SC_SUB_TOTAL),
                                             String.valueOf(cart.SC_TOTAL),
-                                            shipping,
+                                            "'" + shipping + "'",
                                             String.valueOf(TPCW_Util.getRandom(7)),
                                             String.valueOf(getCAddr(customer_id)),
                                             String.valueOf(ship_addr_id));
@@ -614,7 +614,7 @@ public class TPCW_REST {
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(ol_id),
                                         String.valueOf(ol_o_id), String.valueOf(ol_i_id),
                                         String.valueOf(ol_qty), String.valueOf(ol_discount),
-                                        ol_comment);
+                                        "'" + ol_comment + "'");
         } catch( java.lang.Exception ex ) {
             ex.printStackTrace();
         }

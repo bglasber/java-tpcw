@@ -62,7 +62,7 @@ import org.codehaus.jettison.json.JSONObject;
 //glorified struct used for passing customer info around.
 public class Customer {
 
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public int c_id;
     public String c_uname;
