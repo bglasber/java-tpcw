@@ -26,7 +26,7 @@ public class TPCW_REST {
             name[0] = rs.getJSONObject(0).getString("c_fname");
             name[1] = rs.getJSONObject(0).getString("c_lname");
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return name;
     }
@@ -38,7 +38,7 @@ public class TPCW_REST {
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(i_id));
             Book b = new Book(rs.getJSONObject(0));
         } catch( SQLException | JSONException e ) {
-            //TODO: do something with this
+            e.printStackTrace();
         }
 
         return book;
@@ -51,7 +51,7 @@ public class TPCW_REST {
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, uname);
             cust = new Customer(rs.getJSONObject(0));
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return cust;
     }
@@ -66,7 +66,7 @@ public class TPCW_REST {
                 vec.addElement(b);
             }
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return vec;
     }
@@ -81,7 +81,7 @@ public class TPCW_REST {
                 vec.addElement(b);
             }
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return vec;
     }
@@ -96,7 +96,7 @@ public class TPCW_REST {
                 vec.addElement(b);
             }
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return vec;
     }
@@ -111,7 +111,7 @@ public class TPCW_REST {
                 vec.addElement(b);
             }
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return vec;
     }
@@ -126,7 +126,7 @@ public class TPCW_REST {
                 vec.addElement(b);
             }
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return vec;
     }
@@ -145,7 +145,7 @@ public class TPCW_REST {
                 i_thumbnail_vec.addElement(obj.getString("J.i_thumbnail"));
             }
         }catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
     }
 
@@ -181,7 +181,7 @@ public class TPCW_REST {
                                         String.valueOf(i_id));
 
         } catch( SQLException | JSONException e ) {
-            //TODO: do something with this
+            e.printStackTrace();
         }
     }
 
@@ -192,7 +192,7 @@ public class TPCW_REST {
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(cid));
             uname = rs.getJSONObject(0).getString("c_uname");
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return uname;
     }
@@ -204,7 +204,7 @@ public class TPCW_REST {
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, cUname);
             passwd = rs.getJSONObject(0).getString("c_passwd");
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return passwd;
     }
@@ -238,7 +238,7 @@ public class TPCW_REST {
             }
             return order;
         } catch( SQLException | JSONException e ){
-            //TODO: do something with this
+            e.printStackTrace();
         }
         return null;
     }
