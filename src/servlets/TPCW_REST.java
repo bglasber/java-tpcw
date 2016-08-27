@@ -18,7 +18,7 @@ public class TPCW_REST {
 
     private static final Builder builder = RESTUtil.makeRestConnection(1);
 
-    private static String[] getName(int cid){
+    public static String[] getName(int cid){
         String name[] = new String[2];
         String stmt = SQL.getName;
         try {

@@ -100,8 +100,8 @@ public class TPCW_buy_request_servlet extends HttpServlet {
 	      return;
 	  }
 
-	  cust = TPCW_Database.getCustomer(UNAME);
-	  TPCW_Database.refreshSession(cust.c_id);
+	  cust = TPCW_REST.getCustomer(UNAME);
+	  TPCW_REST.refreshSession(cust.c_id);
 	  if(!PASSWD.equals(cust.c_passwd)){
 	      out.print("Error: Incorrect Password</BODY></HTML>");
 	      return;
@@ -121,7 +121,7 @@ public class TPCW_buy_request_servlet extends HttpServlet {
 	  cust.c_email = req.getParameter("EMAIL");
 	  cust.c_birthdate = new Date(req.getParameter("BIRTHDATE"));
 	  cust.c_data = req.getParameter("DATA");
-	  cust = TPCW_Database.createNewCustomer(cust);
+	  cust = TPCW_REST.createNewCustomer(cust);
       }
       else out.print("ERROR: RETURNING_FLAG not set to Y or N!\n");
       
@@ -130,7 +130,7 @@ public class TPCW_buy_request_servlet extends HttpServlet {
 	  return;
       }
       //Update the shopping cart cost and get the current contents
-      Cart mycart = TPCW_Database.getCart(Integer.parseInt(SHOPPING_ID), cust.c_discount);
+      Cart mycart = TPCW_REST.getCart(Integer.parseInt(SHOPPING_ID), cust.c_discount);
       
       //Print out the web page
       out.print("<HR><FORM ACTION=\"TPCW_buy_confirm_servlet"+TPCW_Util.sessionIdString+

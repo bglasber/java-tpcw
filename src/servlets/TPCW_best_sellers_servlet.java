@@ -103,7 +103,7 @@ public class TPCW_best_sellers_servlet extends HttpServlet {
       
 
       //Get best sellers from DB
-      Vector books = TPCW_Database.getBestSellers(subject);
+      Vector books = TPCW_REST.getBestSellers(subject);
 
       //Print out the best sellers.
       int i;

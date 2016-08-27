@@ -84,7 +84,7 @@ public class TPCW_say_hello {
 		C_ID[0] = Integer.parseInt(C_IDstr, 10);
                 out.flush();
 		// Use C_ID to get the user name from the database.
-		name = TPCW_Database.getName(C_ID[0]);
+		name = TPCW_REST.getName(C_ID[0]);
 		// Set the values for this session.
 		if(name==null){
 		   out.println("Hello unknown user!");

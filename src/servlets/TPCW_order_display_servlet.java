@@ -84,13 +84,13 @@ public class TPCW_order_display_servlet extends HttpServlet {
      String passwd = req.getParameter("PASSWD");
      if(uname!= null && passwd!=null){
 	 
-	 String storedpasswd = TPCW_Database.GetPassword(uname);
+	 String storedpasswd = TPCW_REST.GetPassword(uname);
 	 if(!storedpasswd.equals(passwd)){
 	     out.print("Error: Incorrect password.\n");
 	 }
 	 else {
 	     Vector lines = new Vector();
-	     Order order = TPCW_Database.GetMostRecentOrder(uname, lines);
+	     Order order = TPCW_REST.GetMostRecentOrder(uname, lines);
 	     if(order!=null)
 		 printOrder(order, lines,out);
 	     else out.print("User has no order!\n");

@@ -103,11 +103,11 @@ public class TPCW_execute_search extends HttpServlet {
       Vector books = null; //placate javac
       //Display new products
       if(search_type.equals("author"))
-	  books = TPCW_Database.doAuthorSearch(search_string);
+	  books = TPCW_REST.doAuthorSearch(search_string);
       else if(search_type.equals("title"))
-	  books = TPCW_Database.doTitleSearch(search_string);
+	  books = TPCW_REST.doTitleSearch(search_string);
       else if(search_type.equals("subject"))
-	  books = TPCW_Database.doSubjectSearch(search_string);
+	  books = TPCW_REST.doSubjectSearch(search_string);
 
       out.print("<TABLE BORDER=\"1\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n");
       out.print("<TR> <TD WIDTH=\"30\"></TD>\n");

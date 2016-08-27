@@ -81,7 +81,7 @@ public class TPCW_shopping_cart_interaction extends HttpServlet {
 	String SHOPPING_IDstr = req.getParameter("SHOPPING_ID");
 	int SHOPPING_ID;
 	if(SHOPPING_IDstr == null) {
-	    SHOPPING_ID = TPCW_Database.createEmptyCart();
+	    SHOPPING_ID = TPCW_REST.createEmptyCart();
 	} else {
 	    SHOPPING_ID = Integer.parseInt(SHOPPING_IDstr);
 	}
@@ -119,7 +119,7 @@ public class TPCW_shopping_cart_interaction extends HttpServlet {
 	    curr_I_IDstr = req.getParameter("I_ID_" + i);
 	}
 
-	cart = TPCW_Database.doCart(SHOPPING_ID, I_ID, ids, quantities);
+	cart = TPCW_REST.doCart(SHOPPING_ID, I_ID, ids, quantities);
 
 	//Add the top part of the HTML
 	

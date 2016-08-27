@@ -68,7 +68,6 @@ public class TPCW_home_interaction extends HttpServlet {
 		System.err.println("Loading configuration from properties files...");
 		SQL.load();
 		TPCW_Util.load();
-		TPCW_Database.load();
 	}
 
 public void doGet(HttpServletRequest req, HttpServletResponse res)

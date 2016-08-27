@@ -79,7 +79,7 @@ public class TPCW_customer_registration_servlet extends HttpServlet {
       String username;
       if(C_ID != null){
 	  int c_idnum = Integer.parseInt(C_ID);
-	  username = TPCW_Database.GetUserName(c_idnum);
+	  username = TPCW_REST.GetUserName(c_idnum);
       }
       else username = "";
 

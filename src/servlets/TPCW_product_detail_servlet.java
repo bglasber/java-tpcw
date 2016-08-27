@@ -76,7 +76,7 @@ public class TPCW_product_detail_servlet extends HttpServlet {
       PrintWriter out = res.getWriter();
       res.setContentType("text/html");
       
-      Book mybook = TPCW_Database.getBook(I_ID);
+      Book mybook = TPCW_REST.getBook(I_ID);
       
       out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n"); 
       out.print("<HTML><HEAD> <TITLE>TPC-W Product Detail Page</TITLE>\n");

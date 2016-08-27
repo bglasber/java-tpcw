@@ -39,7 +39,7 @@ public class RESTUtil {
 
     public static Builder makeRestConnection(long terminalID) {
         Client client = new Client();
-        String path = "KRONOS URL";
+        String path = "http://54.165.30.77:8080/kronos/rest/query";
         // TODO: @anilpacaci Kronos needs this to differentiate different threads
         path = path + '/' + terminalID;
         System.out.println(path);
@@ -50,7 +50,7 @@ public class RESTUtil {
 
     public static Integer executeUpdateQuery(Builder builder, String sqlStringWithVariables, String... replacements) throws SQLException {
 
-        String sqlQuery = sqlStringWithVariables;
+        String sqlQuery = "{ \"query\": \"" + sqlStringWithVariables + "\" }";
 
         for (int i = 0; i < replacements.length; i++) {
             sqlQuery = StringUtils.replaceOnce(sqlQuery, SQL_VARIABLE, replacements[i]);
@@ -69,7 +69,8 @@ public class RESTUtil {
     }
 
     public static JSONArray executeSelectQuery(Builder builder, String sqlStringWithVariables, String... replacements) throws SQLException {
-        String sqlQuery = sqlStringWithVariables;
+
+        String sqlQuery = "{ \"query\": \"" + sqlStringWithVariables + "\" }";
 
         for (int i = 0; i < replacements.length; i++) {
             sqlQuery = StringUtils.replaceOnce(sqlQuery, SQL_VARIABLE, replacements[i]);

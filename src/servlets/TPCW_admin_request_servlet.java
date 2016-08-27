@@ -79,7 +79,7 @@ public class TPCW_admin_request_servlet extends HttpServlet {
 
       int I_ID = Integer.parseInt(I_IDstr, 10);
 
-      Book book = TPCW_Database.getBook(I_ID);
+      Book book = TPCW_REST.getBook(I_ID);
 
       out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
       out.print("<HTML><HEAD><TITLE>TPC-W Product Update Page</TITLE></HEAD>");
