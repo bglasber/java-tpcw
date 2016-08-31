@@ -39,7 +39,7 @@ public class RESTUtil {
 
     public static Builder makeRestConnection(long terminalID) {
         Client client = new Client();
-        String path = "http://54.165.30.77:8080/kronos/rest/query";
+        String path = "http://54.197.104.125:8080/kronos/rest/query";
         // TODO: @anilpacaci Kronos needs this to differentiate different threads
         path = path + '/' + terminalID;
         System.out.println(path);

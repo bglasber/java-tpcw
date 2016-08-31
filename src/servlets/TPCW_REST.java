@@ -118,9 +118,17 @@ public class TPCW_REST {
 
     public static Vector getBestSellers(String subject){
         Vector vec = new Vector();
+        String firstQuery = "SELECT MIN(o_id) as id, ? FROM orders ORDER BY o_date ASC";
+        String secondQuery = "SELECT i_id, i_title, a_fname, a_lname FROM " +
+                             "item, author, order_line WHERE ol_o_id > ? AND " +
+                             "i_id = ol_i_id AND i_a_id = a_id AND i_subject = ? " +
+			     "GROUP BY i_id, i_title, a_fname, a_lname ORDER BY " +
+                             "SUM(ol_qty) DESC LIMIT 50";
         try {
-            String stmt = SQL.getBestSellers;
-            JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + subject + "'");
+		
+            JSONArray rs = RESTUtil.executeSelectQuery( builder, firstQuery, "'" + subject + "'" );
+            long minOrder = rs.getJSONObject(0).getInt("id");
+            rs = RESTUtil.executeSelectQuery( builder, secondQuery, String.valueOf(minOrder), "'" + subject + "'" );
             for(int i = 0; i < rs.length(); i++){
                 ShortBook b = new ShortBook(rs.getJSONObject(i));
                 vec.addElement(b);
