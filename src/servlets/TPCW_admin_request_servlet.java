@@ -76,10 +76,11 @@ public class TPCW_admin_request_servlet extends HttpServlet {
       String I_IDstr = req.getParameter("I_ID");
       String C_ID = req.getParameter("C_ID");
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
 
       int I_ID = Integer.parseInt(I_IDstr, 10);
 
-      Book book = TPCW_REST.getBook(I_ID);
+      Book book = TPCW_REST.getBook(eb_id, I_ID);
 
       out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
       out.print("<HTML><HEAD><TITLE>TPC-W Product Update Page</TITLE></HEAD>");

@@ -70,6 +70,7 @@ public class TPCW_execute_search extends HttpServlet {
       
       int i;
       
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
 
       String search_type  = req.getParameter("search_type");
@@ -103,11 +104,11 @@ public class TPCW_execute_search extends HttpServlet {
       Vector books = null; //placate javac
       //Display new products
       if(search_type.equals("author"))
-	  books = TPCW_REST.doAuthorSearch(search_string);
+	  books = TPCW_REST.doAuthorSearch(eb_id, search_string);
       else if(search_type.equals("title"))
-	  books = TPCW_REST.doTitleSearch(search_string);
+	  books = TPCW_REST.doTitleSearch(eb_id, search_string);
       else if(search_type.equals("subject"))
-	  books = TPCW_REST.doSubjectSearch(search_string);
+	  books = TPCW_REST.doSubjectSearch(eb_id, search_string);
 
       out.print("<TABLE BORDER=\"1\" CELLPADDING=\"1\" CELLSPACING=\"1\">\n");
       out.print("<TR> <TD WIDTH=\"30\"></TD>\n");

@@ -68,6 +68,7 @@ public class TPCW_customer_registration_servlet extends HttpServlet {
       throws IOException, ServletException {
 
       String url;
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
       PrintWriter out = res.getWriter();
       // Set the content type of this servlet's result.
@@ -79,7 +80,7 @@ public class TPCW_customer_registration_servlet extends HttpServlet {
       String username;
       if(C_ID != null){
 	  int c_idnum = Integer.parseInt(C_ID);
-	  username = TPCW_REST.GetUserName(c_idnum);
+	  username = TPCW_REST.GetUserName(eb_id, c_idnum);
       }
       else username = "";
 

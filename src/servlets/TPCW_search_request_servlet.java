@@ -69,6 +69,7 @@ public class TPCW_search_request_servlet extends HttpServlet {
       PrintWriter out = res.getWriter();
     // Set the content type of this servlet's result.
       res.setContentType("text/html");
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
       String C_ID = req.getParameter("C_ID");
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");

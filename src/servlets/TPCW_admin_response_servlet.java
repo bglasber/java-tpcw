@@ -75,6 +75,7 @@ public class TPCW_admin_response_servlet extends HttpServlet {
       HttpSession session = req.getSession(false);
       
       //Pull out the parameters
+      int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       int I_ID = Integer.parseInt((String) req.getParameter("I_ID"));
       String I_NEW_IMAGE = (String) req.getParameter("I_NEW_IMAGE");
       String I_NEW_THUMBNAIL = (String) req.getParameter("I_NEW_THUMBNAIL");
@@ -85,7 +86,7 @@ public class TPCW_admin_response_servlet extends HttpServlet {
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");
       
       //Get this book out of the database
-      Book book = TPCW_REST.getBook(I_ID);
+      Book book = TPCW_REST.getBook(eb_id, I_ID);
       
       //Spit out the HTML
       out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
@@ -102,7 +103,7 @@ public class TPCW_admin_response_servlet extends HttpServlet {
       }
       else {
 	  //Update the database
-	  TPCW_REST.adminUpdate(I_ID, I_NEW_COSTdbl.doubleValue(),
+	  TPCW_REST.adminUpdate(eb_id, I_ID, I_NEW_COSTdbl.doubleValue(),
 				    I_NEW_IMAGE,I_NEW_THUMBNAIL);
 	  
 	  out.print("<H2>Product Updated</H2>");

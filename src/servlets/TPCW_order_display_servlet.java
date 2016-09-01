@@ -65,6 +65,7 @@ public class TPCW_order_display_servlet extends HttpServlet {
       throws IOException, ServletException {
 
       PrintWriter out = res.getWriter();
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
       String C_ID = req.getParameter("C_ID");
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");
@@ -84,13 +85,13 @@ public class TPCW_order_display_servlet extends HttpServlet {
      String passwd = req.getParameter("PASSWD");
      if(uname!= null && passwd!=null){
 	 
-	 String storedpasswd = TPCW_REST.GetPassword(uname);
+	 String storedpasswd = TPCW_REST.GetPassword(eb_id, uname);
 	 if(!storedpasswd.equals(passwd)){
 	     out.print("Error: Incorrect password.\n");
 	 }
 	 else {
 	     Vector lines = new Vector();
-	     Order order = TPCW_REST.GetMostRecentOrder(uname, lines);
+	     Order order = TPCW_REST.GetMostRecentOrder(eb_id, uname, lines);
 	     if(order!=null)
 		 printOrder(order, lines,out);
 	     else out.print("User has no order!\n");

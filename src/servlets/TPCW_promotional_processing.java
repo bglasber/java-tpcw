@@ -77,7 +77,12 @@ public class TPCW_promotional_processing {
 	int i;
 	String url;
 
-	TPCW_REST.getRelated(I_ID, related_item_ids, thumbnails);
+	int eb_id = 0;
+	String preId = req.getParameter("ebid");
+        if( preId != null ) {
+            eb_id = Integer.parseInt( preId );
+        }
+	TPCW_REST.getRelated(eb_id, I_ID, related_item_ids, thumbnails);
 
 	String C_ID = req.getParameter("C_ID");
 	String SHOPPING_ID = req.getParameter("SHOPPING_ID");

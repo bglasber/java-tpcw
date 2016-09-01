@@ -70,6 +70,7 @@ public class TPCW_new_products_servlet extends HttpServlet {
       PrintWriter out = res.getWriter();
       int i;
       String url;
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
       String subject = req.getParameter("subject");
       String C_ID = req.getParameter("C_ID");
@@ -102,7 +103,7 @@ public class TPCW_new_products_servlet extends HttpServlet {
       //Need to insert code here to get new products from the database,
       //and then spit them out in html to complete the table
       
-      Vector books = TPCW_REST.getNewProducts(subject);
+      Vector books = TPCW_REST.getNewProducts(eb_id, subject);
       for(i = 0; i < books.size(); i++){
 	  ShortBook book = (ShortBook) books.elementAt(i);
 	  out.print("<TR><TD>" + (i+1) + "</TD>\n");

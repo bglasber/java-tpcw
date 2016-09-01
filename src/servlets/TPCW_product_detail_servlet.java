@@ -67,6 +67,7 @@ public class TPCW_product_detail_servlet extends HttpServlet {
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
       String url;
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
       String I_IDstr = req.getParameter("I_ID"); 
       int I_ID = Integer.parseInt(I_IDstr);
@@ -76,7 +77,7 @@ public class TPCW_product_detail_servlet extends HttpServlet {
       PrintWriter out = res.getWriter();
       res.setContentType("text/html");
       
-      Book mybook = TPCW_REST.getBook(I_ID);
+      Book mybook = TPCW_REST.getBook(eb_id, I_ID);
       
       out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n"); 
       out.print("<HTML><HEAD> <TITLE>TPC-W Product Detail Page</TITLE>\n");

@@ -64,6 +64,7 @@ import java.io.*;
 import java.util.Random;
 import java.util.Date;
 import java.util.Vector;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import rbe.util.Debug;
 import rbe.util.StringPattern;
@@ -71,9 +72,11 @@ import rbe.util.StrStrPattern;
 import rbe.util.CharStrPattern;
 import rbe.util.CharSetStrPattern;
 
+
 public class EB extends Thread {
   // Terminate all EBs.
   public static volatile boolean terminate=false;  
+  public static AtomicInteger idCounter = new AtomicInteger(1);
 
   int          [/*from*/][/*to*/] transProb;      // Transition probabilities.
   EBTransition [/*from*/][/*to*/] trans;          // EB transitions.
@@ -94,6 +97,7 @@ public class EB extends Thread {
   long usmd;
   boolean toHome;
   boolean stagger = true;
+  int   ebId;
 
   // Wait for key-stroke between transisions.
   //   Does not do think-times.
@@ -175,6 +179,8 @@ public class EB extends Thread {
     this.transProb = prob;
     this.trans     = trans;
     this.name      = name;
+    ebId           = idCounter.getAndIncrement();
+    System.out.println("Browser assigned id = " + ebId );
 
     maxTrans = max;    
     initialize();
@@ -580,10 +586,12 @@ public class EB extends Thread {
   //  if they are known.
   String addIDs(String i) {
 
+    rbe.stats.error("Going to add Ids to " + i, "" );
+    rbe.stats.error("ebId = " + ebId, "");
+    i = rbe.addField(i, "ebid", ""+ebId);
     if (sessionID != null) {
       i = rbe.addSession(i,rbe.sessionIdString, ""+sessionID);
     }
-    
     if (cid != ID_UNKNOWN) {
       i = rbe.addField(i,rbe.field_cid, ""+cid);
     }
@@ -591,7 +599,7 @@ public class EB extends Thread {
     if (shopID != ID_UNKNOWN) {
       i = rbe.addField(i,rbe.field_shopID, ""+shopID);
     }
-
+    rbe.stats.error("Final url: " + i, "");
     return(i);
   }
 

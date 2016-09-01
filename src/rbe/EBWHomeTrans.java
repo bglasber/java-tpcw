@@ -64,7 +64,7 @@ public class EBWHomeTrans extends EBTransition {
   public String request(EB eb, String html) {
 
     RBE rbe = eb.rbe;
-
+    System.out.println("Going to Home Trans...");
     return(eb.addIDs(rbe.homeURL));
   }
   public boolean toHome() { return(true); };

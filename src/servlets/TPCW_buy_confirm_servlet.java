@@ -102,6 +102,7 @@ public class TPCW_buy_confirm_servlet extends HttpServlet {
 
       HttpSession session = req.getSession(false);
 
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       String SHOPPING_IDstr = req.getParameter("SHOPPING_ID");
       int SHOPPING_ID = Integer.parseInt(SHOPPING_IDstr);
       String C_IDstr = req.getParameter("C_ID");
@@ -123,13 +124,13 @@ public class TPCW_buy_confirm_servlet extends HttpServlet {
 	  String STATE = req.getParameter("STATE");
 	  String ZIP = req.getParameter("ZIP");
 	  String COUNTRY = req.getParameter("COUNTRY");
-	  result = TPCW_REST.doBuyConfirm(SHOPPING_ID, C_ID,CC_TYPE, 
+	  result = TPCW_REST.doBuyConfirm(eb_id, SHOPPING_ID, C_ID,CC_TYPE, 
 					      CC_NUMBER, CC_NAME, 
 					      new java.sql.Date(CC_EXPIRY.getTime()), 
 					      SHIPPING, STREET_1, STREET_2,
 					      CITY, STATE, ZIP, COUNTRY);
       }
-      else result = TPCW_REST.doBuyConfirm(SHOPPING_ID, C_ID, 
+      else result = TPCW_REST.doBuyConfirm(eb_id, SHOPPING_ID, C_ID, 
 					       CC_TYPE,CC_NUMBER,CC_NAME, 
 					       new java.sql.Date(CC_EXPIRY.getTime()),
 					       SHIPPING);

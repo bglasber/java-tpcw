@@ -72,6 +72,7 @@ public class TPCW_best_sellers_servlet extends HttpServlet {
 
       HttpSession session = req.getSession(false);
 
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       String subject = req.getParameter("subject");
       String C_ID = req.getParameter("C_ID");
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");
@@ -103,7 +104,7 @@ public class TPCW_best_sellers_servlet extends HttpServlet {
       
 
       //Get best sellers from DB
-      Vector books = TPCW_REST.getBestSellers(subject);
+      Vector books = TPCW_REST.getBestSellers(eb_id, subject);
 
       //Print out the best sellers.
       int i;

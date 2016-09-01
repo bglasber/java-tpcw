@@ -182,7 +182,7 @@ public class EBStats {
     System.out.println(error);
 	 errorCnt++;
 	 if ((errorCnt >= maxError) && (maxError>0)) {
-		System.exit(-1);
+		//System.exit(-1);
 	 }
   };
 

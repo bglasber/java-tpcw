@@ -66,6 +66,7 @@ public class TPCW_order_inquiry_servlet extends HttpServlet {
     
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
+	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
 
       PrintWriter out = res.getWriter();

@@ -3,6 +3,8 @@ package servlets;
 import java.sql.SQLException;
 import java.util.Vector;
 import java.util.Date;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Enumeration;
 import java.text.SimpleDateFormat;
 
@@ -16,9 +18,16 @@ import common.SQL;
 
 public class TPCW_REST {
 
-    private static final Builder builder = RESTUtil.makeRestConnection(1);
+    private static Map<Integer, Builder> connMap = new HashMap<>();
+    
 
-    public static String[] getName(int cid){
+    public static String[] getName(int eb_id, int cid){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         String name[] = new String[2];
         String stmt = SQL.getName;
         try {
@@ -31,7 +40,13 @@ public class TPCW_REST {
         return name;
     }
 
-    public static Book getBook(int i_id){
+    public static Book getBook( int eb_id, int i_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Book book = null;
         String stmt = SQL.getBook;
         try {
@@ -44,7 +59,13 @@ public class TPCW_REST {
         return book;
     }
 
-    public static Customer getCustomer(String uname){
+    public static Customer getCustomer( int eb_id, String uname ){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Customer cust = null;
         String stmt = SQL.getCustomer;
         try {
@@ -56,7 +77,13 @@ public class TPCW_REST {
         return cust;
     }
 
-    public static Vector doSubjectSearch(String searchKey){
+    public static Vector doSubjectSearch(int eb_id, String searchKey){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Vector vec = new Vector();
         try {
             String stmt = SQL.doSubjectSearch;
@@ -71,7 +98,13 @@ public class TPCW_REST {
         return vec;
     }
 
-    public static Vector doTitleSearch(String searchKey){
+    public static Vector doTitleSearch(int eb_id, String searchKey){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Vector vec = new Vector();
         try {
             String stmt = SQL.doTitleSearch;
@@ -86,7 +119,13 @@ public class TPCW_REST {
         return vec;
     }
 
-    public static Vector doAuthorSearch(String searchKey){
+    public static Vector doAuthorSearch(int eb_id, String searchKey){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Vector vec = new Vector();
         try {
             String stmt = SQL.doAuthorSearch;
@@ -101,7 +140,13 @@ public class TPCW_REST {
         return vec;
     }
 
-    public static Vector getNewProducts(String subject){
+    public static Vector getNewProducts(int eb_id, String subject){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Vector vec = new Vector();
         try {
             String stmt = SQL.getNewProducts;
@@ -116,9 +161,15 @@ public class TPCW_REST {
         return vec;
     }
 
-    public static Vector getBestSellers(String subject){
+    public static Vector getBestSellers(int eb_id, String subject){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Vector vec = new Vector();
-        String firstQuery = "SELECT MIN(o_id) as id, ? FROM orders ORDER BY o_date ASC";
+        String firstQuery = "SELECT MIN(o_id) as id, ? FROM (SELECT o_id FROM orders ORDER BY o_date ASC LIMIT 3333 ) as T";
         String secondQuery = "SELECT i_id, i_title, a_fname, a_lname FROM " +
                              "item, author, order_line WHERE ol_o_id > ? AND " +
                              "i_id = ol_i_id AND i_a_id = a_id AND i_subject = ? " +
@@ -139,7 +190,13 @@ public class TPCW_REST {
         return vec;
     }
 
-    public static void getRelated(int i_id, Vector i_id_vec, Vector i_thumbnail_vec ){
+    public static void getRelated(int eb_id, int i_id, Vector i_id_vec, Vector i_thumbnail_vec ){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try {
             String stmt = SQL.getRelated;
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(i_id));
@@ -157,7 +214,13 @@ public class TPCW_REST {
         }
     }
 
-    public static void adminUpdate(int i_id, double cost, String image, String thumbnail){
+    public static void adminUpdate(int eb_id, int i_id, double cost, String image, String thumbnail){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try{
             String stmt = SQL.adminUpdate;
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(cost), "'" + image + "'", "'" + thumbnail + "'", String.valueOf(i_id));
@@ -193,7 +256,13 @@ public class TPCW_REST {
         }
     }
 
-    public static String GetUserName(int cid){
+    public static String GetUserName(int eb_id, int cid){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         String uname = null;
         try {
             String stmt = SQL.getUserName;
@@ -205,7 +274,13 @@ public class TPCW_REST {
         return uname;
     }
 
-    public static String GetPassword(String cUname){
+    public static String GetPassword(int eb_id, String cUname){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         String passwd = null;
         try {
             String stmt = SQL.getPassword;
@@ -217,7 +292,13 @@ public class TPCW_REST {
         return passwd;
     }
 
-    public static Order GetMostRecentOrder(String cUname, Vector order_lines){
+    public static Order GetMostRecentOrder(int eb_id, String cUname, Vector order_lines){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try {
             order_lines.removeAllElements();
             int order_id;
@@ -251,7 +332,13 @@ public class TPCW_REST {
         return null;
     }
 
-    public static int createEmptyCart(){
+    public static int createEmptyCart(int eb_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int SHOPPING_ID = 0; 
         String stmt = SQL.createEmptyCart;
         try { 
@@ -269,23 +356,35 @@ public class TPCW_REST {
     }
 
 
-    public static Cart doCart(int SHOPPING_ID, Integer I_ID, Vector ids, Vector quantities){
+    public static Cart doCart(int eb_id, int SHOPPING_ID, Integer I_ID, Vector ids, Vector quantities){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Cart cart = null;
         try {
         if( I_ID != null ) {
-            addItem(SHOPPING_ID, I_ID.intValue());
+            addItem(eb_id, SHOPPING_ID, I_ID.intValue());
         }
-        refreshCart(SHOPPING_ID, ids, quantities);
-        addRandomItemToCartIfNecessary(SHOPPING_ID);
-        resetCartTime(SHOPPING_ID);
-        cart = getCart(SHOPPING_ID, 0.0);
+        refreshCart(eb_id, SHOPPING_ID, ids, quantities);
+        addRandomItemToCartIfNecessary(eb_id, SHOPPING_ID);
+        resetCartTime(eb_id, SHOPPING_ID);
+        cart = getCart(eb_id, SHOPPING_ID, 0.0);
         } catch( java.lang.Exception ex ){
             ex.printStackTrace();
         }
         return cart;
     }
 
-    public static void addItem(int SHOPPING_ID, int I_ID){
+    public static void addItem(int eb_id, int SHOPPING_ID, int I_ID){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         String stmt = SQL.addItem;
         try{
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt,
@@ -307,7 +406,13 @@ public class TPCW_REST {
         }
     }
 
-    public static void refreshCart(int SHOPPING_ID, Vector ids, Vector quantities){
+    public static void refreshCart(int eb_id, int SHOPPING_ID, Vector ids, Vector quantities){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int i;
         try{
             for(i = 0; i < ids.size(); i++){
@@ -329,15 +434,21 @@ public class TPCW_REST {
         }
     }
 
-    public static void addRandomItemToCartIfNecessary(int SHOPPING_ID){
+    public static void addRandomItemToCartIfNecessary(int eb_id, int SHOPPING_ID){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int related_item = 0;
         try{
             String stmt = SQL.addRandomItemToCartIfNecessary;
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, String.valueOf(SHOPPING_ID));
             if( rs.getJSONObject(0).getInt("COUNT(*)") == 0 ){
                 int randId = TPCW_Util.getRandomI_ID();
-                related_item = getRelated1(randId);
-                addItem(SHOPPING_ID, related_item);
+                related_item = getRelated1(eb_id, randId);
+                addItem(eb_id, SHOPPING_ID, related_item);
             }
         } catch( java.lang.Exception ex ) {
             ex.printStackTrace();
@@ -345,7 +456,13 @@ public class TPCW_REST {
         } 
     }
 
-    public static int getRelated1(int I_ID){
+    public static int getRelated1(int eb_id, int I_ID){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int related1 = -1;
         try{
             String stmt = SQL.getRelated1;
@@ -357,7 +474,13 @@ public class TPCW_REST {
         return related1;
     }
 
-    public static void resetCartTime(int SHOPPING_ID){
+    public static void resetCartTime(int eb_id, int SHOPPING_ID){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try{
             String stmt = SQL.resetCartTime;
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(SHOPPING_ID));
@@ -366,7 +489,13 @@ public class TPCW_REST {
         }
     }
 
-    public static Cart getCart(int SHOPPING_ID, double c_discount){
+    public static Cart getCart(int eb_id, int SHOPPING_ID, double c_discount){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         Cart myCart = null;
         try{
             String stmt = SQL.getCart;
@@ -378,7 +507,13 @@ public class TPCW_REST {
         return myCart;
     }
 
-    public static void refreshSession(int C_ID){
+    public static void refreshSession(int eb_id, int C_ID){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try{
             String stmt = SQL.refreshSession;
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(C_ID));
@@ -387,7 +522,13 @@ public class TPCW_REST {
         }
     }
 
-    public static Customer createNewCustomer(Customer cust){
+    public static Customer createNewCustomer(int eb_id, Customer cust){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         try {
             cust.c_discount = (int) (java.lang.Math.random() * 51);
@@ -401,6 +542,7 @@ public class TPCW_REST {
                     7200000);//milliseconds in 2 hours
 
             cust.addr_id = enterAddress(
+		    eb_id,
                     cust.addr_street1, 
                     cust.addr_street2,
                     cust.addr_city,
@@ -417,6 +559,7 @@ public class TPCW_REST {
                 cust.c_id+=1;
                 cust.c_uname = TPCW_Util.DigSyl(cust.c_id, 0);
                 cust.c_passwd = cust.c_uname.toLowerCase();
+		cust.c_data = cust.c_data.replaceAll( "[^A-Za-z0-9]", "" );
 
                 String createNewCustomerStmt = SQL.createNewCustomer;
                 RESTUtil.executeUpdateQuery(builder, createNewCustomerStmt,
@@ -444,8 +587,14 @@ public class TPCW_REST {
         return cust;
     }
 
-    public static int enterAddress(String street1, String street2, String city, String state,
+    public static int enterAddress(int eb_id, String street1, String street2, String city, String state,
                                    String zip, String country ) {
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int addr_id = 0;
         try{
             String stmt = SQL.enterAddress_id;
@@ -477,45 +626,63 @@ public class TPCW_REST {
         return addr_id;
     }
 
-    public static BuyConfirmResult doBuyConfirm(int shopping_id, int customer_id,
+    public static BuyConfirmResult doBuyConfirm(int eb_id, int shopping_id, int customer_id,
                                                 String cc_type, long cc_number,
                                                 String cc_name, Date cc_expiry,
                                                 String shipping ) {
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         BuyConfirmResult result = new BuyConfirmResult();
         try{
-            double c_discount = getCDiscount(customer_id);
-            result.cart = getCart(shopping_id, c_discount);
-            int ship_addr_id = getCAddr(customer_id);
-            result.order_id = enterOrder(customer_id, result.cart, ship_addr_id, shipping, c_discount);
-            enterCCXact(result.order_id, cc_type, cc_number ,cc_name, cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
-            clearCart(shopping_id);
+            double c_discount = getCDiscount(eb_id, customer_id);
+            result.cart = getCart(eb_id, shopping_id, c_discount);
+            int ship_addr_id = getCAddr(eb_id, customer_id);
+            result.order_id = enterOrder(eb_id, customer_id, result.cart, ship_addr_id, shipping, c_discount);
+            enterCCXact(eb_id, result.order_id, cc_type, cc_number ,cc_name, cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
+            clearCart(eb_id, shopping_id);
         } catch( java.lang.Exception ex ) {
             ex.printStackTrace();
         }
         return result;
     }
 
-    public static BuyConfirmResult doBuyConfirm(int shopping_id, int customer_id,
+    public static BuyConfirmResult doBuyConfirm(int eb_id, int shopping_id, int customer_id,
                                                 String cc_type, long cc_number,
                                                 String cc_name, Date cc_expiry,
                                                 String shipping, String street_1,
                                                 String street_2, String city,
                                                 String state, String zip, String country) {
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         BuyConfirmResult result = new BuyConfirmResult();
         try{
-            double c_discount = getCDiscount(customer_id);
-            result.cart = getCart(shopping_id, c_discount);
-            int ship_addr_id = enterAddress(street_1, street_2, city, state, zip, country);
-            result.order_id = enterOrder(customer_id, result.cart, ship_addr_id, shipping, c_discount);
-            enterCCXact(result.order_id, cc_type, cc_number, cc_name, cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
-            clearCart(shopping_id);
+            double c_discount = getCDiscount(eb_id, customer_id);
+            result.cart = getCart(eb_id, shopping_id, c_discount);
+            int ship_addr_id = enterAddress(eb_id, street_1, street_2, city, state, zip, country);
+            result.order_id = enterOrder(eb_id, customer_id, result.cart, ship_addr_id, shipping, c_discount);
+            enterCCXact(eb_id, result.order_id, cc_type, cc_number, cc_name, cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
+            clearCart(eb_id, shopping_id);
         } catch( java.lang.Exception ex ) {
             ex.printStackTrace();
         }
         return result;
     }
 
-    public static double getCDiscount(int c_id){
+    public static double getCDiscount(int eb_id, int c_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         double c_discount = 0;
         try{
             String stmt = SQL.getCDiscount;
@@ -527,7 +694,13 @@ public class TPCW_REST {
         return c_discount;
     }
 
-    public static int getCAddr(int c_id){
+    public static int getCAddr(int eb_id, int c_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int c_addr_id = 0;
         try{
             String stmt = SQL.getCAddr;
@@ -539,8 +712,14 @@ public class TPCW_REST {
         return c_addr_id;
     }
 
-    public static void enterCCXact(int o_id, String cc_type, long cc_number, String cc_name,
+    public static void enterCCXact(int eb_id, int o_id, String cc_type, long cc_number, String cc_name,
                                    Date cc_expiry, double total, int ship_addr_id){
+
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -548,6 +727,7 @@ public class TPCW_REST {
             cc_type = cc_type.substring(0,10);
         if(cc_name.length() > 30)
             cc_name = cc_name.substring(0,30);
+	    cc_name = cc_name.replaceAll( "[^A-Za-z0-9]", "" );
         try{
             String stmt = SQL.enterCCXact;
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(o_id), "'" + cc_type + "'",
@@ -559,7 +739,13 @@ public class TPCW_REST {
         }
     }
 
-    public static void clearCart(int shopping_id){
+    public static void clearCart(int eb_id, int shopping_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try{
             String stmt = SQL.clearCart;
             RESTUtil.executeUpdateQuery(builder, stmt, String.valueOf(shopping_id));
@@ -568,8 +754,14 @@ public class TPCW_REST {
         }
     }
 
-    public static int enterOrder(int customer_id, Cart cart, int ship_addr_id,
+    public static int enterOrder(int eb_id, int customer_id, Cart cart, int ship_addr_id,
                                  String shipping, double c_discount) {
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int o_id = 0;
         try{
             String getMaxIdStmt = SQL.enterOrder_maxId;
@@ -584,7 +776,7 @@ public class TPCW_REST {
                                             String.valueOf(cart.SC_TOTAL),
                                             "'" + shipping + "'",
                                             String.valueOf(TPCW_Util.getRandom(7)),
-                                            String.valueOf(getCAddr(customer_id)),
+                                            String.valueOf(getCAddr(eb_id, customer_id)),
                                             String.valueOf(ship_addr_id));
             }
 
@@ -597,25 +789,31 @@ public class TPCW_REST {
         while(e.hasMoreElements()) {
             // - Creates one or more 'order_line' rows.
             CartLine cart_line = (CartLine) e.nextElement();
-            addOrderLine(counter, o_id, cart_line.scl_i_id, 
+            addOrderLine(eb_id, counter, o_id, cart_line.scl_i_id, 
                     cart_line.scl_qty, c_discount, 
                     TPCW_Util.getRandomString(20, 100));
             counter++;
 
             // - Adjusts the stock for each item ordered
-            int stock = getStock(cart_line.scl_i_id);
+            int stock = getStock(eb_id, cart_line.scl_i_id);
             if ((stock - cart_line.scl_qty) < 10) {
-                setStock(cart_line.scl_i_id, 
+                setStock(eb_id, cart_line.scl_i_id, 
                         stock - cart_line.scl_qty + 21);
             } else {
-                setStock(cart_line.scl_i_id, stock - cart_line.scl_qty);
+                setStock(eb_id, cart_line.scl_i_id, stock - cart_line.scl_qty);
             }
         }
         return o_id;
     }
 
-    public static void addOrderLine(int ol_id, int ol_o_id, int ol_i_id,
+    public static void addOrderLine(int eb_id, int ol_id, int ol_o_id, int ol_i_id,
                                     int ol_qty, double ol_discount, String ol_comment ){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int success = 0;
         try{
             String stmt = SQL.addOrderLine;
@@ -628,7 +826,13 @@ public class TPCW_REST {
         }
     }
 
-    public static int getStock(int i_id){
+    public static int getStock(int eb_id, int i_id){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         int stock = 0;
         try{
             String stmt = SQL.getStock;
@@ -640,7 +844,13 @@ public class TPCW_REST {
         return stock;
     }
 
-    public static void setStock(int i_id, int new_stock){
+    public static void setStock(int eb_id, int i_id, int new_stock){
+        Builder builder = connMap.get(eb_id);
+	if( builder == null ){
+            connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id) );
+	    builder = connMap.get(eb_id);
+        }
+
         try{
             String stmt = SQL.setStock;
             RESTUtil.executeUpdateQuery(builder, stmt,
