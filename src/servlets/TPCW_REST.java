@@ -281,6 +281,7 @@ public class TPCW_REST {
 	    builder = connMap.get(eb_id);
         }
 
+	if( cUname.equals("") ) { return ""; }
         String passwd = null;
         try {
             String stmt = SQL.getPassword;
@@ -776,7 +777,7 @@ public class TPCW_REST {
             synchronized(Order.class){
                 JSONArray rs = RESTUtil.executeSelectQuery(builder, getMaxIdStmt);
                 //TODO: again with the aggregate field naming
-                o_id = rs.getJSONObject(0).getInt("count(o_id)")+1;
+                o_id = rs.getJSONObject(0).getInt("max(o_id)")+1;
                 String enterOrderStmt = SQL.enterOrder_insert;
                 RESTUtil.executeUpdateQuery(builder, enterOrderStmt, String.valueOf(o_id),
                                             String.valueOf(customer_id),

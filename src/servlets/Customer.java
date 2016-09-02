@@ -158,13 +158,32 @@ public class Customer {
             c_phone = obj.getString("c_phone");
             c_email = obj.getString("c_email");
             c_since = sdf.parse(obj.getString("c_since"));
+		try {
             c_last_visit = sdf.parse(obj.getString("c_last_login"));
+		} catch ( java.lang.Exception ex ) {
+			c_last_visit = new Date();
+		}
+		try {
             c_login = sdf.parse(obj.getString("c_login"));
+		} catch( java.lang.Exception ex ) {
+			c_login = new Date();
+			}
+
+		try {
             c_expiration = sdf.parse(obj.getString("c_expiration"));
+		} catch( java.lang.Exception ex ) {
+			c_expiration = new Date();
+			}
+
             c_discount = obj.getDouble("c_discount");
             c_balance = obj.getDouble("c_balance");
             c_ytd_pmt = obj.getDouble("c_ytd_pmt");
+		try {
             c_birthdate = sdf.parse(obj.getString("c_birthdate"));
+		} catch( java.lang.Exception ex ) {
+			c_birthdate = new Date();
+			}
+
             c_data = obj.getString("c_data");
 
             addr_id = obj.getInt("addr_id");
