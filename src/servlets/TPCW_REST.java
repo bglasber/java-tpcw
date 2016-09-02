@@ -540,6 +540,10 @@ public class TPCW_REST {
             cust.c_login = new Date(System.currentTimeMillis());
             cust.c_expiration = new Date(System.currentTimeMillis() + 
                     7200000);//milliseconds in 2 hours
+	    cust.addr_street1 = cust.addr_street1.replaceAll( "[^A-Za-z0-9]", "" );
+	    cust.addr_street2 = cust.addr_street2.replaceAll( "[^A-Za-z0-9]", "" );
+	    cust.addr_city = cust.addr_city.replaceAll( "[^A-Za-z0-9]", "" );
+	    cust.co_name = cust.co_name.replaceAll( "[^A-Za-z0-9]", "" );
 
             cust.addr_id = enterAddress(
 		    eb_id,
@@ -600,6 +604,10 @@ public class TPCW_REST {
             String stmt = SQL.enterAddress_id;
             JSONArray rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + country + "'");
             int addr_co_id = rs.getJSONObject(0).getInt("co_id");
+
+	    street1 = street1.replaceAll( "[^A-Za-z0-9]", "" );
+	    street2 = street2.replaceAll( "[^A-Za-z0-9]", "" );
+	    city = city.replaceAll( "[^A-Za-z0-9]", "" );
 
             stmt = SQL.enterAddress_match;
             rs = RESTUtil.executeSelectQuery(builder, stmt, "'" + street1 + "'", "'" + street2 + "'", "'" + city + "'", "'" + state + "'",
