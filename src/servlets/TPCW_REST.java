@@ -169,7 +169,7 @@ public class TPCW_REST {
         }
 
         Vector vec = new Vector();
-        String firstQuery = "SELECT MIN(o_id) as id, ? FROM (SELECT o_id FROM orders ORDER BY o_date ASC LIMIT 3333 ) as T";
+        String firstQuery = "SELECT MIN(o_id) as id, qsh_ignore(?) AS subject FROM (SELECT o_id FROM orders ORDER BY o_date DESC LIMIT 3333 ) as T";
         String secondQuery = "SELECT i_id, i_title, a_fname, a_lname FROM " +
                              "item, author, order_line WHERE ol_o_id > ? AND " +
                              "i_id = ol_i_id AND i_a_id = a_id AND i_subject = ? " +
