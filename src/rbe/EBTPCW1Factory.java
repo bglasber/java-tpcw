@@ -157,7 +157,7 @@ public class EBTPCW1Factory extends EBFactory {
     /*NEWP  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
     /*ORDD  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
     /*ORDI  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-    /*PROD  */ { null, null, null, null, null, null, null, null, null, null, null, proc, null, null, shoa},
+    /*PROD  */ { null, null, null, null, null, null, null, null, null, null, null, proc, null, null, null},
     /*SREQ  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
     /*SRES  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
     /*SHOP  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, shor}

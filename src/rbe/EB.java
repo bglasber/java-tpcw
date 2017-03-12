@@ -297,8 +297,7 @@ public class EB extends Thread {
 	  try {
 	    if (waitKey) {
 	      rbe.getKey();
-	    }
-	    else {
+	    } else {
 	      sleep(tt);
 	    }
 	  }
