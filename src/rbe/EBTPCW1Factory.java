@@ -160,7 +160,7 @@ public class EBTPCW1Factory extends EBFactory {
     /*PROD  */ { null, null, null, null, null, null, null, null, null, null, null, proc, null, null, null},
     /*SREQ  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
     /*SRES  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-    /*SHOP  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, shor}
+    /*SHOP  */ { null, null, null, null, null, null, null, null, null, null, null, null, null, null, null}
   };
 
   private int count = 1;
