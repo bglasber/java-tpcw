@@ -86,7 +86,7 @@ public class EB extends Thread {
   String html;               // Received HTML
   public String prevHTML;    // HTML from a previous page.
   int maxTrans;
-  String name;
+  public String name;
   byte [] buffer = new byte[4096];
   int    cid;                // CUSTOMER_ID.  See TPC-W Spec.
   String sessionID;          // SESSION_ID.  See TPC-W Spec. 

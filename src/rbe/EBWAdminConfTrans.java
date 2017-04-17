@@ -72,6 +72,7 @@ public class EBWAdminConfTrans extends EBTransition {
   private static final StrStrPattern iid = new StrStrPattern("I_ID\" TYPE=\"hidden\" VALUE=\"");
 
   public String request(EB eb, String html) {
+	 System.out.println( "EB " + eb.name + "running admin conf trans!");
 	 String url;
     RBE rbe = eb.rbe;
 	 int i,e,id;
