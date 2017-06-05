@@ -119,6 +119,7 @@
 					<pathelement path="lib/libthrift-0.9.3.jar" />
 					<pathelement path="lib/slf4j-api-1.7.25.jar" />
 					<pathelement path="lib/slf4j-simple-1.7.25.jar" />
+					<pathelement path="lib/commons-lang3-3.0.jar" />
       				<pathelement path="${buildDir}"/>
       				<pathelement location="${cpJDBC}"/>
          		</classpath>

@@ -72,7 +72,10 @@ import common.Loader;
 import common.SQL;
 
 import servlets.DMUtil;
-import dm.*;
+import dm.DMConn;
+import dm.DMConnId;
+
+import com.dynamic.mastering.primary_key;
 
 public class TPCW_Populate extends Loader {
 
@@ -94,6 +97,7 @@ public class TPCW_Populate extends Loader {
   private static final int NUM_ORDERS = (int)(.9 * NUM_CUSTOMERS);
   //    private static final int NUM_ADDRESSES = 10;
 
+  private static int numItemsUntilCommit = 1000;
   private static DMConn conn;
 
   public static void main(String[] args) {
@@ -105,8 +109,8 @@ public class TPCW_Populate extends Loader {
     getConnection();
     deleteTables();
     createTables();
-	/*
     populateAddressTable();
+	/*
     populateAuthorTable();
     populateCountryTable();
     populateCustomerTable();
@@ -240,34 +244,54 @@ public class TPCW_Populate extends Loader {
     System.out.println("Populating ADDRESS Table with " + NUM_ADDRESSES +
                        " addresses");
     System.out.print("Complete (in 10,000's): ");
+    try {
+      int start = 1;
+      while (start <= NUM_ADDRESSES) {
+		int end = Math.min(NUM_ADDRESSES, start + numItemsUntilCommit);
+		loadAddressTable(start, end);
+		start = end + 1;
+	  }
+    } catch (java.lang.Exception ex) {
+      System.err.println("Unable to populate ADDRESS table");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+    System.out.print("\n");
+  }
+
+  private static void loadAddressTable(int start, int end) {
+    System.out.println("Populating ADDRESS Table from " + start +
+                       " to " + end);
     String ADDR_STREET1, ADDR_STREET2, ADDR_CITY, ADDR_STATE;
     String ADDR_ZIP;
     int ADDR_CO_ID;
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateAddress);
-      for (int i = 1; i <= NUM_ADDRESSES; i++) {
-        if (i % 10000 == 0)
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      for (int i = start; i <= end; i++) {
+        keys.add(DMUtil.constructAddressPrimaryKey(i));
+      }
+      writeLocations = conn.begin(keys);
+
+      String sqlStatement = SQL.populateAddress;
+      for (int i = start; i <= end; i++) {
+        if (i % 10000 == 0) {
           System.out.print(i / 10000 + " ");
-        ADDR_STREET1 = getRandomAString(15, 40);
-        ADDR_STREET2 = getRandomAString(15, 40);
-        ADDR_CITY = getRandomAString(4, 30);
-        ADDR_STATE = getRandomAString(2, 20);
-        ADDR_ZIP = getRandomAString(5, 10);
+		}
+        ADDR_STREET1 = "'" + getRandomAString(15, 40) + "'";
+        ADDR_STREET2 = "'" + getRandomAString(15, 40) + "'";
+        ADDR_CITY = "'" + getRandomAString(4, 30) + "'";
+        ADDR_STATE = "'" + getRandomAString(2, 20) + "'";
+        ADDR_ZIP = "'" + getRandomAString(5, 10) + "'";
         ADDR_CO_ID = getRandomInt(1, 92);
 
-        // Set parameter
-        statement.setInt(1, i);
-        statement.setString(2, ADDR_STREET1);
-        statement.setString(3, ADDR_STREET2);
-        statement.setString(4, ADDR_CITY);
-        statement.setString(5, ADDR_STATE);
-        statement.setString(6, ADDR_ZIP);
-        statement.setInt(7, ADDR_CO_ID);
-        statement.executeUpdate();
-        if (i % 1000 == 0)
-          con.commit();
+        primary_key pk = DMUtil.constructAddressPrimaryKey(i);
+        String query = conn.constructQuery(
+            sqlStatement, String.valueOf(i), ADDR_STREET1, ADDR_STREET2,
+            ADDR_CITY, ADDR_STATE, ADDR_ZIP, String.valueOf(ADDR_CO_ID));
+        conn.executeWriteQuery(query, writeLocations.get(pk));
       }
-      con.commit();
+      conn.commit();
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate ADDRESS table");
       ex.printStackTrace();
@@ -787,13 +811,11 @@ public class TPCW_Populate extends Loader {
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
         'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
         'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '@', '#', '$',
-        '%', '^', '&', '*', '(', ')', '_', '-', '=', '+', '{', '}', '[', ']',
-        '|', ':', ';', ',', '.', '?', '/', '~', ' '}; // 79 characters
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'}; // 52 characters
     int strlen = (int)Math.floor(rand.nextDouble() * ((max - min) + 1));
     strlen += min;
     for (i = 0; i < strlen; i++) {
-      char c = chars[(int)Math.floor(rand.nextDouble() * 79)];
+      char c = chars[(int)Math.floor(rand.nextDouble() * 52)];
       newstring = newstring.concat(String.valueOf(c));
     }
     return newstring;
@@ -806,11 +828,9 @@ public class TPCW_Populate extends Loader {
         'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
         'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B',
         'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P',
-        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '!', '@', '#', '$',
-        '%', '^', '&', '*', '(', ')', '_', '-', '=', '+', '{', '}', '[', ']',
-        '|', ':', ';', ',', '.', '?', '/', '~', ' '}; // 79 characters
+        'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'}; // 52 characters
     for (i = 0; i < length; i++) {
-      char c = chars[(int)Math.floor(rand.nextDouble() * 79)];
+      char c = chars[(int)Math.floor(rand.nextDouble() * 52)];
       newstring = newstring.concat(String.valueOf(c));
     }
     return newstring;
