@@ -27,20 +27,14 @@ public class TPCW_DM {
       connMap.put(eb_id, DMUtil.makeDMConnection(eb_id));
       conn = connMap.get(eb_id);
     }
-	return conn;
+    return conn;
   }
 
   public static Book getBook(int eb_id, int i_id) {
-	DMConn conn = getConn(eb_id);
     Book book = null;
-    try {
-	  conn.begin();
-      book = getBookWithinTxn(eb_id, i_id);
-	  conn.commit();
-    } catch (SQLException e) {
-      e.printStackTrace();
-	  abort(eb_id);
-    }
+    begin(eb_id);
+    book = getBookWithinTxn(eb_id, i_id);
+    commit(eb_id);
 
     return book;
   }
@@ -48,13 +42,13 @@ public class TPCW_DM {
   public static Book getBookWithinTxn(int eb_id, int i_id) {
     DMConn conn = getConn(eb_id);
     Book book = null;
-	String stmt = SQL.getBook;
+    String stmt = SQL.getBook;
     try {
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
       book = new Book(rs);
     } catch (SQLException e) {
       e.printStackTrace();
-	  abort(eb_id);
+      abort(eb_id);
     }
 
     return book;
@@ -62,19 +56,10 @@ public class TPCW_DM {
 
   public static Map<primary_key, DMConnId> beginAdminResponse(int eb_id,
                                                               int i_id) {
-    DMConn conn = getConn(eb_id);
-    Map<primary_key, DMConnId> writeLocations = null;
-    try {
-      List<primary_key> keys = new ArrayList<primary_key>();
-      keys.add(DMUtil.constructItemPrimaryKey(i_id));
+    List<primary_key> keys = new ArrayList<primary_key>();
+    keys.add(DMUtil.constructItemPrimaryKey(i_id));
 
-	  return conn.begin(keys);
-
-    } catch (SQLException e) {
-      e.printStackTrace();
-	  abort(eb_id);
-    }
-    return writeLocations;
+    return begin(eb_id, keys);
   }
 
   public static void adminUpdate(int eb_id,
@@ -103,6 +88,7 @@ public class TPCW_DM {
         related_items[counter] = last;
         counter++;
       }
+      rs.close();
 
       for (int i = counter; i < 5; i++) {
         last++;
@@ -114,30 +100,86 @@ public class TPCW_DM {
           String.valueOf(related_items[1]), String.valueOf(related_items[2]),
           String.valueOf(related_items[3]), String.valueOf(related_items[4]),
           String.valueOf(i_id));
-	  conn.executeWriteQuery(relatedQuery, writeLocations.get(pk));
+      conn.executeWriteQuery(relatedQuery, writeLocations.get(pk));
 
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+  }
+
+  public static void getRelatedWithinTxn(int eb_id, int i_id, Vector i_id_vec,
+                                         Vector i_thumbnail_vec) {
+    DMConn conn = getConn(eb_id);
+
+    try {
+      String stmt = SQL.getRelated;
+      DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
+      i_id_vec.removeAllElements();
+      i_thumbnail_vec.removeAllElements();
+
+      while (rs.next()) {
+        i_id_vec.addElement(rs.getInt("i_id"));
+        i_thumbnail_vec.addElement(rs.getString("i_thumbnail"));
+      }
+      rs.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+  }
+
+  public static Vector getBestSellersWithinTxn(int eb_id, String subject) {
+    Vector vec = new Vector();
+    try {
+      DMConn conn = getConn(eb_id);
+      DMResultSet rs = conn.executeReadQuery(SQL.getBestSellers, subject);
+
+      while (rs.next()) {
+        vec.addElement(new ShortBook(rs));
+      }
+      rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
 	  abort(eb_id);
     }
+    return vec;
+  }
+
+  public static void begin(int eb_id) {
+    // don't care let it go away;
+    Map<primary_key, DMConnId> writeLocations =
+        begin(eb_id, new ArrayList<primary_key>());
+  }
+
+  public static Map<primary_key, DMConnId> begin(int eb_id,
+                                                 List<primary_key> keys) {
+    DMConn conn = getConn(eb_id);
+    Map<primary_key, DMConnId> writeLocations = null;
+    try {
+      writeLocations = conn.begin(keys);
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+    return writeLocations;
   }
 
   public static void commit(int eb_id) {
-	DMConn conn = getConn(eb_id);
-	try {
+    DMConn conn = getConn(eb_id);
+    try {
       conn.commit();
     } catch (SQLException e) {
       e.printStackTrace();
-	  abort(eb_id);
+      abort(eb_id);
     }
   }
   public static void abort(int eb_id) {
-	DMConn conn = getConn(eb_id);
-	try {
+    DMConn conn = getConn(eb_id);
+    try {
       conn.abort();
     } catch (SQLException e) {
       e.printStackTrace();
     }
   }
-
 }

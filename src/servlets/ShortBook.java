@@ -1,5 +1,5 @@
-/* 
- * ShortBook.java - Class stores a subset of the information related to a 
+/*
+ * ShortBook.java - Class stores a subset of the information related to a
  *                  a single ITEM in the DB.
  *
  ************************************************************************
@@ -10,7 +10,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -21,7 +21,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -59,9 +59,31 @@ import java.sql.*;
 
 import org.codehaus.jettison.json.JSONObject;
 
+import dm.DMResultSet;
+
 public class ShortBook {
     // Construct a book from a ResultSet
     public ShortBook(ResultSet rs) {
+        // The result set should have all of the fields we expect.
+        // This relies on using field name access.  It might be a bad
+        // way to break this up since it does not allow us to use the
+        // more efficient select by index access method.  This also
+        // might be a problem since there is no type checking on the
+        // result set to make sure it is even a reasonble result set
+        // to give to this function.
+
+        try {
+            i_id = rs.getInt("i_id");
+            i_title = rs.getString("i_title");
+            a_fname = rs.getString("a_fname");
+            a_lname = rs.getString("a_lname");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+    public ShortBook(DMResultSet rs) {
         // The result set should have all of the fields we expect.
         // This relies on using field name access.  It might be a bad
         // way to break this up since it does not allow us to use the

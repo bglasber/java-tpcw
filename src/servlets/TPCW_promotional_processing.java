@@ -1,5 +1,5 @@
-/* 
- * TPCW_promotional_processing.java - This class is basically just a 
+/*
+ * TPCW_promotional_processing.java - This class is basically just a
  *                                    utility function used to spit
  *                                    out the promotional processing
  *                                    at the top of many web pages.
@@ -12,7 +12,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -23,7 +23,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -67,7 +67,7 @@ import javax.servlet.http.*;
 
 public class TPCW_promotional_processing {
 
-    public static void DisplayPromotions(PrintWriter out, 
+    public static void DisplayPromotions(PrintWriter out,
 					 HttpServletRequest req,
 					 HttpServletResponse res,
 					 int new_sid){
@@ -82,7 +82,7 @@ public class TPCW_promotional_processing {
         if( preId != null ) {
             eb_id = Integer.parseInt( preId );
         }
-	TPCW_REST.getRelated(eb_id, I_ID, related_item_ids, thumbnails);
+	TPCW_DM.getRelatedWithinTxn(eb_id, I_ID, related_item_ids, thumbnails);
 
 	String C_ID = req.getParameter("C_ID");
 	String SHOPPING_ID = req.getParameter("SHOPPING_ID");
@@ -94,11 +94,11 @@ public class TPCW_promotional_processing {
 		  "Click on one of our latest books to find out more!" +
 		  "</FONT></B></TD></TR>\n");
 	out.print("<TR ALIGN=CENTER VALIGN=top>\n");
-	
+
 	//Create links and references to book images
 	for(i = 0; i < related_item_ids.size(); i++){
 	    url = "./TPCW_product_detail_servlet";
-	    url = url + "?I_ID=" + 
+	    url = url + "?I_ID=" +
 		String.valueOf(related_item_ids.elementAt(i));
 	    if(SHOPPING_ID != null)
 		url = url + "&SHOPPING_ID=" + SHOPPING_ID;
@@ -108,7 +108,7 @@ public class TPCW_promotional_processing {
 		url = url + "&C_ID=" + C_ID;
 	    out.print("<TD><A HREF=\""+ res.encodeUrl(url));
 	    out.print("\"><IMG SRC=\"../tpcw/Images/" +thumbnails.elementAt(i)
-		      + "\" ALT=\"Book " + String.valueOf(i+1) 
+		      + "\" ALT=\"Book " + String.valueOf(i+1)
 		      + "\" WIDTH=\"100\" HEIGHT=\"150\"></A>\n");
 	    out.print("</TD>");
 	}
