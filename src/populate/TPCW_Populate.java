@@ -114,9 +114,9 @@ public class TPCW_Populate extends Loader {
     populateCountryTable();
     populateCustomerTable();
     populateItemTable();
-	/*
     // Need to debug
     populateOrdersAndCC_XACTSTable();
+	/*
 	*/
     addIndexes();
     System.out.println("Done");
@@ -702,6 +702,25 @@ public class TPCW_Populate extends Loader {
   }
 
   private static void populateOrdersAndCC_XACTSTable() {
+    System.out.println("Populating ORDERS, ORDER_LINES, CC_XACTS with " +
+                       NUM_ORDERS + " orders");
+
+    System.out.print("Complete (in 10,000's): ");
+    try {
+      for (int i = 1; i <= NUM_ORDERS; i++) {
+        if (i % 10000 == 0)
+          System.out.print(i / 10000 + " ");
+		loadOrdersAndCC_XACTSTable(i);
+      }
+    } catch (java.lang.Exception ex) {
+      System.err.println("Unable to populate CC_XACTS table");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+    System.out.print("\n");
+  }
+
+  private static void loadOrdersAndCC_XACTSTable(int orderId) {
     GregorianCalendar cal;
     String[] credit_cards = {"VISA", "MASTERCARD", "DISCOVER", "AMEX",
                              "DINERS"};
@@ -715,11 +734,13 @@ public class TPCW_Populate extends Loader {
     // Order variables
     int O_C_ID;
     java.sql.Timestamp O_DATE;
+	String O_DATE_STR;
     double O_SUB_TOTAL;
     double O_TAX;
     double O_TOTAL;
     String O_SHIP_TYPE;
     java.sql.Timestamp O_SHIP_DATE;
+	String O_SHIP_DATE_STR;
     int O_BILL_ADDR_ID, O_SHIP_ADDR_ID;
     String O_STATUS;
 
@@ -727,98 +748,108 @@ public class TPCW_Populate extends Loader {
     int CX_NUM;
     String CX_NAME;
     java.sql.Date CX_EXPIRY;
+    String CX_EXPIRY_STR;
     String CX_AUTH_ID;
     double CX_XACT_AMT;
     int CX_CO_ID;
 
-    System.out.println("Populating ORDERS, ORDER_LINES, CC_XACTS with " +
-                       NUM_ORDERS + " orders");
+    System.out.println("Populating ORDERS, ORDER_LINES, CC_XACTS with order id" +
+                       orderId);
 
-    System.out.print("Complete (in 10,000's): ");
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateOrders);
-      PreparedStatement statement2 =
-          con.prepareStatement(SQL.populateOrderLine);
-      PreparedStatement statement3 = con.prepareStatement(SQL.populateCCXacts);
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      primary_key orderPk = DMUtil.constructOrderPrimaryKey(orderId);
+      primary_key ccPk = DMUtil.constructCCXactsPrimaryKey(orderId);
 
-      for (int i = 1; i <= NUM_ORDERS; i++) {
-        if (i % 10000 == 0)
-          System.out.print(i / 10000 + " ");
-        int num_items = getRandomInt(1, 5);
-        O_C_ID = getRandomInt(1, NUM_CUSTOMERS);
-        cal = new GregorianCalendar();
-        cal.add(Calendar.DAY_OF_YEAR, -1 * getRandomInt(1, 60));
-        O_DATE = new java.sql.Timestamp(cal.getTime().getTime());
-        O_SUB_TOTAL = (double)getRandomInt(1000, 999999) / 100;
-        O_TAX = O_SUB_TOTAL * 0.0825;
-        O_TOTAL = O_SUB_TOTAL + O_TAX + 3.00 + num_items;
-        O_SHIP_TYPE = ship_types[getRandomInt(0, num_ship_types - 1)];
-        cal.add(Calendar.DAY_OF_YEAR, getRandomInt(0, 7));
-        O_SHIP_DATE = new java.sql.Timestamp(cal.getTime().getTime());
+	  keys.add(orderPk);
+	  keys.add(ccPk);
 
-        O_BILL_ADDR_ID = getRandomInt(1, 2 * NUM_CUSTOMERS);
-        O_SHIP_ADDR_ID = getRandomInt(1, 2 * NUM_CUSTOMERS);
-        O_STATUS = status_types[getRandomInt(0, num_status_types - 1)];
+      int num_items = getRandomInt(1, 5);
 
-        // Set parameter
-        statement.setInt(1, i);
-        statement.setInt(2, O_C_ID);
-        statement.setTimestamp(3, O_DATE);
-        statement.setDouble(4, O_SUB_TOTAL);
-        statement.setDouble(5, O_TAX);
-        statement.setDouble(6, O_TOTAL);
-        statement.setString(7, O_SHIP_TYPE);
-        statement.setTimestamp(8, O_SHIP_DATE);
-        statement.setInt(9, O_BILL_ADDR_ID);
-        statement.setInt(10, O_SHIP_ADDR_ID);
-        statement.setString(11, O_STATUS);
-        statement.executeUpdate();
+	  for (int j = 1; j <= num_items; j++) {
+		  keys.add(DMUtil.constructOrderLinePrimaryKey(orderId, j));
+	  }
 
-        for (int j = 1; j <= num_items; j++) {
-          int OL_ID = j;
-          int OL_O_ID = i;
-          int OL_I_ID = getRandomInt(1, num_item);
-          int OL_QTY = getRandomInt(1, 300);
-          double OL_DISCOUNT = (double)getRandomInt(0, 30) / 100;
-          String OL_COMMENTS = getRandomAString(20, 100);
-          statement2.setInt(1, OL_ID);
-          statement2.setInt(2, OL_O_ID);
-          statement2.setInt(3, OL_I_ID);
-          statement2.setInt(4, OL_QTY);
-          statement2.setDouble(5, OL_DISCOUNT);
-          statement2.setString(6, OL_COMMENTS);
-          statement2.executeUpdate();
-        }
+      writeLocations = conn.begin(keys);
 
-        CX_TYPE = credit_cards[getRandomInt(0, num_card_types - 1)];
-        CX_NUM = getRandomNString(16);
-        CX_NAME = getRandomAString(14, 30);
-        cal = new GregorianCalendar();
-        cal.add(Calendar.DAY_OF_YEAR, getRandomInt(10, 730));
-        CX_EXPIRY = new java.sql.Date(cal.getTime().getTime());
-        CX_AUTH_ID = getRandomAString(15);
-        CX_CO_ID = getRandomInt(1, 92);
-        statement3.setInt(1, i);
-        statement3.setString(2, CX_TYPE);
-        statement3.setInt(3, CX_NUM);
-        statement3.setString(4, CX_NAME);
-        statement3.setDate(5, CX_EXPIRY);
-        statement3.setString(6, CX_AUTH_ID);
-        statement3.setDouble(7, O_TOTAL);
-        statement3.setTimestamp(8, O_SHIP_DATE);
-        statement3.setInt(9, CX_CO_ID);
-        statement3.executeUpdate();
 
-        if (i % 1000 == 0)
-          con.commit();
-      }
-      con.commit();
+      String orderSqlStatement = SQL.populateOrders;
+      String ccSqlStatement = SQL.populateCCXacts;
+
+      O_C_ID = getRandomInt(1, NUM_CUSTOMERS);
+      cal = new GregorianCalendar();
+      cal.add(Calendar.DAY_OF_YEAR, -1 * getRandomInt(1, 60));
+      O_DATE = new java.sql.Timestamp(cal.getTime().getTime());
+	  O_DATE_STR = "'" + String.valueOf(O_DATE) + "'";
+
+      O_SUB_TOTAL = (double)getRandomInt(1000, 999999) / 100;
+      O_TAX = O_SUB_TOTAL * 0.0825;
+      O_TOTAL = O_SUB_TOTAL + O_TAX + 3.00 + num_items;
+      O_SHIP_TYPE = "'" + ship_types[getRandomInt(0, num_ship_types - 1)] + "'";
+      cal.add(Calendar.DAY_OF_YEAR, getRandomInt(0, 7));
+      O_SHIP_DATE = new java.sql.Timestamp(cal.getTime().getTime());
+	  O_SHIP_DATE_STR = "'" + String.valueOf(O_SHIP_DATE) + "'";
+
+      O_BILL_ADDR_ID = getRandomInt(1, 2 * NUM_CUSTOMERS);
+      O_SHIP_ADDR_ID = getRandomInt(1, 2 * NUM_CUSTOMERS);
+      O_STATUS = "'" + status_types[getRandomInt(0, num_status_types - 1)] + "'";
+
+      String orderQuery = conn.constructQuery(
+          orderSqlStatement, String.valueOf(orderId), String.valueOf(O_C_ID),
+          O_DATE_STR, String.valueOf(O_SUB_TOTAL), String.valueOf(O_TAX),
+          String.valueOf(O_TOTAL), O_SHIP_TYPE, O_SHIP_DATE_STR,
+		  String.valueOf(O_BILL_ADDR_ID), String.valueOf(O_SHIP_ADDR_ID), O_STATUS);
+      conn.executeWriteQuery(orderQuery, writeLocations.get(orderPk));
+
+      CX_TYPE = "'" + credit_cards[getRandomInt(0, num_card_types - 1)] + "'";
+      CX_NUM = getRandomNString(16);
+      CX_NAME = "'" + getRandomAString(14, 30) + "'";
+      cal = new GregorianCalendar();
+      cal.add(Calendar.DAY_OF_YEAR, getRandomInt(10, 730));
+      CX_EXPIRY = new java.sql.Date(cal.getTime().getTime());
+	  CX_EXPIRY_STR = "'" + String.valueOf(CX_EXPIRY) + "'";
+      CX_AUTH_ID = "'" + getRandomAString(15) + "'";
+      CX_CO_ID = getRandomInt(1, 92);
+
+	  String ccQuery = conn.constructQuery(
+          ccSqlStatement, String.valueOf(orderId), CX_TYPE, String.valueOf(CX_NUM),
+		  CX_NAME, CX_EXPIRY_STR, CX_AUTH_ID, String.valueOf(O_TOTAL), O_SHIP_DATE_STR,
+		  String.valueOf(CX_CO_ID));
+      conn.executeWriteQuery(ccQuery, writeLocations.get(ccPk));
+
+      loadOrderLine(orderId, num_items, writeLocations);
+
+      conn.commit();
+
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate CC_XACTS table");
       ex.printStackTrace();
       System.exit(1);
     }
     System.out.print("\n");
+  }
+
+  private static void loadOrderLine(int orderId, int num_items,
+		  Map<primary_key, DMConnId> writeLocations) throws SQLException {
+    String orderLineSqlStatement = SQL.populateOrderLine;
+
+    for (int j = 1; j <= num_items; j++) {
+      int OL_ID = j;
+      int OL_O_ID = orderId;
+      int OL_I_ID = getRandomInt(1, num_item);
+      int OL_QTY = getRandomInt(1, 300);
+      double OL_DISCOUNT = (double)getRandomInt(0, 30) / 100;
+      String OL_COMMENTS = "'" + getRandomAString(20, 100) + "'";
+
+      DMUtil.constructOrderLinePrimaryKey(orderId, j);
+      primary_key pk = DMUtil.constructOrderLinePrimaryKey(orderId, j);
+      String query = conn.constructQuery(
+          orderLineSqlStatement, String.valueOf(OL_ID), String.valueOf(OL_O_ID),
+		  String.valueOf(OL_I_ID), String.valueOf(OL_QTY),
+		  String.valueOf(OL_DISCOUNT), OL_COMMENTS);
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    }
   }
 
   private static void getConnection() {
