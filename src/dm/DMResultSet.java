@@ -1,9 +1,12 @@
 package dm;
 
+import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSSLTransportFactory;
@@ -22,23 +25,28 @@ public class DMResultSet {
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   private query_result query_res;
+  private Map<String, Integer> labelToColumnMap;
   private int cursor;
 
   public DMResultSet() {
 	  this.query_res = new query_result();
 	  query_res.ntups = -1;
 	  cursor = -1;
+	  labelToColumnMap = new HashMap<String, Integer>();
   }
 
   public DMResultSet(query_result query_res) {
 	this.query_res = query_res;
 	cursor = -1;
+	labelToColumnMap = new HashMap<String, Integer>();
+	filLabelToColumnMap();
   }
 
   public boolean append(DMResultSet dm_res_to_add) {
 	  query_result res_to_add = dm_res_to_add.query_res;
 	  if (query_res.ntups == -1) {
 		query_res = res_to_add;
+		filLabelToColumnMap();
 		return true;
 	  }
 	  if (res_to_add.ntups == 0) {
@@ -59,6 +67,28 @@ public class DMResultSet {
     return (cursor < query_res.ntups);
   }
 
+  public Date getDate(String columnLabel) throws SQLException {
+    String entry = getString(columnLabel);
+    return Date.valueOf(entry);
+  }
+
+  public double getDouble(String columnLabel) throws SQLException {
+    String entry = getString(columnLabel);
+    return Double.parseDouble(entry);
+  }
+
+  public int getInt(String columnLabel) throws SQLException {
+    String entry = getString(columnLabel);
+    return Integer.parseInt(entry);
+  }
+
+  public String getString(String columnLabel) throws SQLException {
+	  Integer columnIndex = labelToColumnMap.get(columnLabel);
+	  if (columnIndex == null) {
+		  return null;
+	  }
+	  return getString(columnIndex);
+  }
 
   public int getInt(int columnIndex) throws SQLException {
     String entry = getString(columnIndex);
@@ -77,6 +107,14 @@ public class DMResultSet {
     if (columnIndex > query_res.numAttributes) {
       throw new SQLException("Access column past number of attributes");
     }
+  }
+
+  private void filLabelToColumnMap() {
+	  int col = 0;
+	  for (att_desc desc : query_res.attDescs) {
+		  labelToColumnMap.put(desc.name, col);
+		  col++;
+	  }
   }
 }
 

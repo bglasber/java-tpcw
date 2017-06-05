@@ -1,8 +1,8 @@
 
 /*
  * Book.java - Class used to store all of the data associated with a single
- *             book. 
- * 
+ *             book.
+ *
  ************************************************************************
  *
  * This is part of the the Java TPC-W distribution,
@@ -11,7 +11,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -22,7 +22,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -66,6 +66,8 @@ import java.text.SimpleDateFormat;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
+import dm.DMResultSet;
+
 public class Book {
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -106,7 +108,47 @@ public class Book {
         } catch (java.lang.Exception ex) {
             ex.printStackTrace();
         }
-    } 
+    }
+
+
+    public Book(DMResultSet rs) {
+        // The result set should have all of the fields we expect.
+        // This relies on using field name access.  It might be a bad
+        // way to break this up since it does not allow us to use the
+        // more efficient select by index access method.  This also
+        // might be a problem since there is no type checking on the
+        // result set to make sure it is even a reasonble result set
+        // to give to this function.
+
+        try {
+			rs.next();
+            i_id = rs.getInt("i_id");
+            i_title = rs.getString("i_title");
+            i_pub_Date = rs.getDate("i_pub_date");
+            i_publisher = rs.getString("i_publisher");
+            i_subject = rs.getString("i_subject");
+            i_desc = rs.getString("i_desc");
+            i_related1 = rs.getInt("i_related1");
+            i_related2 = rs.getInt("i_related2");
+            i_related3 = rs.getInt("i_related3");
+            i_related4 = rs.getInt("i_related4");
+            i_related5 = rs.getInt("i_related5");
+            i_thumbnail = rs.getString("i_thumbnail");
+            i_image = rs.getString("i_image");
+            i_srp = rs.getDouble("i_srp");
+            i_cost = rs.getDouble("i_cost");
+            i_avail = rs.getDate("i_avail");
+            i_isbn = rs.getString("i_isbn");
+            i_page = rs.getInt("i_page");
+            i_backing = rs.getString("i_backing");
+            i_dimensions = rs.getString("i_dimensions");
+            a_id = rs.getInt("a_id");
+            a_fname = rs.getString("a_fname");
+            a_lname = rs.getString("a_lname");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     public Book(JSONObject obj){
         try {
