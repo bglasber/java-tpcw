@@ -16,4 +16,8 @@ public class DMUtil {
     return new primary_key(DMConstants.ADDRESS_TABLE_ID, addr_id);
   }
 
+  public static primary_key constructAuthorPrimaryKey(int auth_id) {
+    return new primary_key(DMConstants.AUTHOR_TABLE_ID, auth_id);
+  }
+
 }

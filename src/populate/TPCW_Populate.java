@@ -88,7 +88,7 @@ public class TPCW_Populate extends Loader {
 
   // ATTENTION: The NUM_EBS and NUM_ITEMS variables are the only variables
   // that should be modified in order to rescale the DB.
-  public static int num_eb = 10;
+  public static int num_eb = 2;
   public static int num_item = 1000;
 
   private static final int NUM_CUSTOMERS = num_eb * 2880;
@@ -110,8 +110,8 @@ public class TPCW_Populate extends Loader {
     deleteTables();
     createTables();
     populateAddressTable();
-	/*
     populateAuthorTable();
+	/*
     populateCountryTable();
     populateCustomerTable();
     populateItemTable();
@@ -301,20 +301,45 @@ public class TPCW_Populate extends Loader {
   }
 
   private static void populateAuthorTable() {
-    String A_FNAME, A_MNAME, A_LNAME, A_BIO;
-    java.sql.Date A_DOB;
-    GregorianCalendar cal;
-
     System.out.println("Populating AUTHOR Table with " + NUM_AUTHORS +
                        " authors");
 
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateAuthor);
-      for (int i = 1; i <= NUM_AUTHORS; i++) {
+	  int start = 1;
+       while (start <= NUM_AUTHORS) {
+         int end = Math.min(NUM_AUTHORS, start + numItemsUntilCommit);
+         loadAuthorTable(start, end);
+         start = end + 1;
+      }
+    } catch (java.lang.Exception ex) {
+      System.err.println("Unable to populate AUTHOR table");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  private static void loadAuthorTable(int start, int end) {
+    String A_FNAME, A_MNAME, A_LNAME, A_BIO, A_DOB_STR;
+    java.sql.Date A_DOB;
+    GregorianCalendar cal;
+
+    System.out.println("Populating AUTHOR Table from " + start +
+                       " to " + end);
+
+    try {
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      for (int i = start; i <= end; i++) {
+        keys.add(DMUtil.constructAuthorPrimaryKey(i));
+      }
+      writeLocations = conn.begin(keys);
+
+      String sqlStatement = SQL.populateAuthor;
+      for (int i = start; i <= end; i++) {
         int month, day, year, maxday;
-        A_FNAME = getRandomAString(3, 20);
-        A_MNAME = getRandomAString(1, 20);
-        A_LNAME = getRandomAString(1, 20);
+        A_FNAME = "'" + getRandomAString(3, 20) + "'";
+        A_MNAME = "'" + getRandomAString(1, 20) + "'";
+        A_LNAME = "'" + getRandomAString(1, 20) + "'";
         year = getRandomInt(1800, 1990);
         month = getRandomInt(0, 11);
         maxday = 31;
@@ -325,19 +350,17 @@ public class TPCW_Populate extends Loader {
         day = getRandomInt(1, maxday);
         cal = new GregorianCalendar(year, month, day);
         A_DOB = new java.sql.Date(cal.getTime().getTime());
-        A_BIO = getRandomAString(125, 500);
+        A_BIO = "'" + getRandomAString(125, 500) + "'";
+		A_DOB_STR = "'" + String.valueOf(A_DOB) + "'";
         // Set parameter
-        statement.setInt(1, i);
-        statement.setString(2, A_FNAME);
-        statement.setString(3, A_LNAME);
-        statement.setString(4, A_MNAME);
-        statement.setDate(5, A_DOB);
-        statement.setString(6, A_BIO);
-        statement.executeUpdate();
-        if (i % 1000 == 0)
-          con.commit();
+        primary_key pk = DMUtil.constructAuthorPrimaryKey(i);
+        String query =
+            conn.constructQuery(sqlStatement, String.valueOf(i), A_FNAME,
+                                A_LNAME, A_MNAME, A_DOB_STR, A_BIO);
+        conn.executeWriteQuery(query, writeLocations.get(pk));
+
       }
-      con.commit();
+      conn.commit();
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate AUTHOR table");
       ex.printStackTrace();
