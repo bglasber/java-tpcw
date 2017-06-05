@@ -111,8 +111,8 @@ public class TPCW_Populate extends Loader {
     createTables();
     populateAddressTable();
     populateAuthorTable();
-	/*
     populateCountryTable();
+	/*
     populateCustomerTable();
     populateItemTable();
     // Need to debug
@@ -505,16 +505,32 @@ public class TPCW_Populate extends Loader {
                        " countries");
 
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateCountry);
+	  int CO_ID;
+	  String CO_NAME, CO_CURRENCY;
+	  double CO_EXCHANGE;
+
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      for (int i = 1; i <= NUM_COUNTRIES; i++) {
+        keys.add(DMUtil.constructCountryPrimaryKey(i));
+      }
+      writeLocations = conn.begin(keys);
+
+      String sqlStatement = SQL.populateCountry;
       for (int i = 1; i <= NUM_COUNTRIES; i++) {
         // Set parameter
-        statement.setInt(1, i);
-        statement.setString(2, countries[i - 1]);
-        statement.setDouble(3, exchanges[i - 1]);
-        statement.setString(4, currencies[i - 1]);
-        statement.executeUpdate();
+        CO_NAME = "'" + countries[i - 1] + "'";
+        CO_EXCHANGE = exchanges[i - 1];
+        CO_CURRENCY = "'" + currencies[i - 1] + "'";
+
+        primary_key pk = DMUtil.constructCountryPrimaryKey(i);
+        String query =
+            conn.constructQuery(sqlStatement, String.valueOf(i), CO_NAME,
+					String.valueOf(CO_EXCHANGE), CO_CURRENCY);
+        conn.executeWriteQuery(query, writeLocations.get(pk));
+
       }
-      con.commit();
+      conn.commit();
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate COUNTRY table");
       ex.printStackTrace();

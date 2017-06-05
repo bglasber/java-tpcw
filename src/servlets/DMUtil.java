@@ -20,4 +20,9 @@ public class DMUtil {
     return new primary_key(DMConstants.AUTHOR_TABLE_ID, auth_id);
   }
 
+  public static primary_key constructCountryPrimaryKey(int country_id) {
+    return new primary_key(DMConstants.COUNTRY_TABLE_ID, country_id);
+  }
+
+
 }
