@@ -112,8 +112,8 @@ public class TPCW_Populate extends Loader {
     populateAddressTable();
     populateAuthorTable();
     populateCountryTable();
-	/*
     populateCustomerTable();
+	/*
     populateItemTable();
     // Need to debug
     populateOrdersAndCC_XACTSTable();
@@ -140,30 +140,58 @@ public class TPCW_Populate extends Loader {
   }
 
   private static void populateCustomerTable() {
-    String C_UNAME, C_PASSWD, C_LNAME, C_FNAME;
-    int C_ADDR_ID, C_PHONE;
-    String C_EMAIL;
-    java.sql.Date C_SINCE, C_LAST_LOGIN;
-    java.sql.Timestamp C_LOGIN, C_EXPIRATION;
-    double C_DISCOUNT, C_BALANCE, C_YTD_PMT;
-    java.sql.Date C_BIRTHDATE;
-    String C_DATA;
-    int i;
     System.out.println("Populating CUSTOMER Table with " + NUM_CUSTOMERS +
                        " customers");
     System.out.print("Complete (in 10,000's): ");
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateCustomer);
-      for (i = 1; i <= NUM_CUSTOMERS; i++) {
-        if (i % 10000 == 0)
+      int start = 1;
+      while (start <= NUM_CUSTOMERS) {
+        int end = Math.min(NUM_CUSTOMERS, start + numItemsUntilCommit);
+        loadCustomerTable(start, end);
+        start = end + 1;
+      }
+    } catch (java.lang.Exception ex) {
+      System.err.println("Unable to populate CUSTOMER table");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  private static void loadCustomerTable(int start, int end) {
+    String C_UNAME, C_UNAME_STR, C_PASSWD, C_LNAME, C_FNAME;
+    int C_ADDR_ID, C_PHONE;
+    String C_EMAIL;
+    java.sql.Date C_SINCE, C_LAST_LOGIN;
+    java.sql.Timestamp C_LOGIN, C_EXPIRATION;
+	String C_LOGIN_STR, C_EXPIRATION_STR;
+    double C_DISCOUNT, C_BALANCE, C_YTD_PMT;
+    java.sql.Date C_BIRTHDATE;
+	String C_SINCE_STR, C_LAST_LOGIN_STR, C_BIRTHDATE_STR;
+    String C_DATA;
+    int i;
+    System.out.println("Populating CUSTOMER Table from " + start +
+                       " to " + end);
+    try {
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      for (i = start; i <= end; i++) {
+        keys.add(DMUtil.constructCustomerPrimaryKey(i));
+      }
+      writeLocations = conn.begin(keys);
+
+      String sqlStatement = SQL.populateCustomer;
+      for (i = start; i <= end; i++) {
+        if (i % 10000 == 0) {
           System.out.print(i / 10000 + " ");
-        C_UNAME = DigSyl(i, 0);
-        C_PASSWD = C_UNAME.toLowerCase();
-        C_LNAME = getRandomAString(8, 15);
-        C_FNAME = getRandomAString(8, 15);
+		}
+        C_UNAME= DigSyl(i, 0);
+        C_UNAME_STR = "'" + C_UNAME + "'";
+        C_PASSWD = "'" + C_UNAME.toLowerCase() + "'";
+        C_LNAME = "'" + getRandomAString(8, 15) + "'";
+        C_FNAME = "'" + getRandomAString(8, 15) + "'";
         C_ADDR_ID = getRandomInt(1, 2 * NUM_CUSTOMERS);
         C_PHONE = getRandomNString(9, 16);
-        C_EMAIL = C_UNAME + "@" + getRandomAString(2, 9) + ".com";
+        C_EMAIL = "'" + C_UNAME + "@" + getRandomAString(2, 9) + ".com" + "'";
 
         GregorianCalendar cal = new GregorianCalendar();
         cal.add(Calendar.DAY_OF_YEAR, -1 * getRandomInt(1, 730));
@@ -193,29 +221,24 @@ public class TPCW_Populate extends Loader {
         cal = new GregorianCalendar(year, month, day);
         C_BIRTHDATE = new java.sql.Date(cal.getTime().getTime());
 
-        C_DATA = getRandomAString(100, 500);
+		C_LOGIN_STR = "'" + String.valueOf(C_LOGIN) + "'";
+		C_EXPIRATION_STR = "'" + String.valueOf(C_EXPIRATION) + "'";
+		C_SINCE_STR = "'" + String.valueOf(C_SINCE) + "'";
+		C_LAST_LOGIN_STR = "'" + String.valueOf(C_LAST_LOGIN) + "'";
+		C_BIRTHDATE_STR = "'" + String.valueOf(C_BIRTHDATE) + "'";
+
+        C_DATA = "'" + getRandomAString(100, 500) + "'";
 
         try { // Set parameter
-          statement.setInt(1, i);
-          statement.setString(2, C_UNAME);
-          statement.setString(3, C_PASSWD);
-          statement.setString(4, C_FNAME);
-          statement.setString(5, C_LNAME);
-          statement.setInt(6, C_ADDR_ID);
-          statement.setInt(7, C_PHONE);
-          statement.setString(8, C_EMAIL);
-          statement.setDate(9, C_SINCE);
-          statement.setDate(10, C_LAST_LOGIN);
-          statement.setTimestamp(11, C_LOGIN);
-          statement.setTimestamp(12, C_EXPIRATION);
-          statement.setDouble(13, C_DISCOUNT);
-          statement.setDouble(14, C_BALANCE);
-          statement.setDouble(15, C_YTD_PMT);
-          statement.setDate(16, C_BIRTHDATE);
-          statement.setString(17, C_DATA);
-          statement.executeUpdate();
-          if (i % 1000 == 0)
-            con.commit();
+          primary_key pk = DMUtil.constructCustomerPrimaryKey(i);
+          String query = conn.constructQuery(
+              sqlStatement, String.valueOf(i), C_UNAME_STR, C_PASSWD, C_FNAME,
+			  C_LNAME, String.valueOf(C_ADDR_ID), String.valueOf(C_PHONE), C_EMAIL,
+			  C_SINCE_STR, C_LAST_LOGIN_STR, C_LOGIN_STR, C_EXPIRATION_STR,
+			  String.valueOf(C_DISCOUNT), String.valueOf(C_BALANCE),
+			  String.valueOf(C_YTD_PMT), C_BIRTHDATE_STR, C_DATA);
+          conn.executeWriteQuery(query, writeLocations.get(pk));
+
         } catch (java.lang.Exception ex) {
           System.err.println("Unable to populate CUSTOMER table");
           System.out.println(
@@ -231,8 +254,8 @@ public class TPCW_Populate extends Loader {
           System.exit(1);
         }
       }
+	  conn.commit();
       System.out.print("\n");
-      con.commit();
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate CUSTOMER table");
       ex.printStackTrace();
