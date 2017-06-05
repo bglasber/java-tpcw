@@ -49,12 +49,12 @@
 
     <target name="compile" depends="generate">
         <mkdir dir="${buildDir}"/>
-        <javac includeantruntime="false" srcdir="${genDir}" destdir="${buildDir}">
+        <javac includeantruntime="true" srcdir="${genDir}" destdir="${buildDir}">
           <classpath>
             <pathelement path="${classpath}"/>
             <pathelement path="lib/libthrift-0.9.3.jar" />
 			<pathelement path="lib/slf4j-api-1.7.25.jar" />
-			<pathelement path="slf4j-simple-1.7.25.jar" />
+			<pathelement path="lib/slf4j-simple-1.7.25.jar" />
           </classpath>
         </javac>
    </target>
@@ -63,7 +63,7 @@
   	<target name="build" depends="compile" description="Build the *.class files from source.">
    		<mkdir dir="${distDir}" />
    		<mkdir dir="${buildDir}" />
-   		<javac srcdir="${srcDir}" destdir="${buildDir}">
+   		<javac includeantruntime="true" srcdir="${srcDir}" destdir="${buildDir}">
    			<classpath>
    				<pathelement path="${classpath}"/>
                                 <pathelement path="lib/jersey-core-1.9.jar" />
@@ -73,7 +73,7 @@
                                 <pathelement path="lib/jettison-1.1.jar" />
 								<pathelement path="lib/libthrift-0.9.3.jar" />
 								<pathelement path="lib/slf4j-api-1.7.25.jar" />
-								<pathelement path="slf4j-simple-1.7.25.jar" />
+								<pathelement path="lib/slf4j-simple-1.7.25.jar" />
 								<pathelement location="${cpServ}"/>
    			</classpath>
    		</javac>
@@ -116,6 +116,9 @@
 		<java classname="populate.TPCW_Populate" fork="true">
          		<classpath>
       				<pathelement path="${classpath}"/>
+					<pathelement path="lib/libthrift-0.9.3.jar" />
+					<pathelement path="lib/slf4j-api-1.7.25.jar" />
+					<pathelement path="lib/slf4j-simple-1.7.25.jar" />
       				<pathelement path="${buildDir}"/>
       				<pathelement location="${cpJDBC}"/>
          		</classpath>

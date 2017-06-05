@@ -98,13 +98,14 @@ public class TPCW_Populate extends Loader {
 
   public static void main(String[] args) {
     System.out.println("Beginning TPCW Database population.");
-    SQL.load();
+	// DO NOT DYNAMICALLY SWAP IN SQL code that's confusing
+    //SQL.load();
     load(TPCW_Populate.class, "tpcw.properties", "");
     rand = new Random();
     getConnection();
-	/*
     deleteTables();
     createTables();
+	/*
     populateAddressTable();
     populateAuthorTable();
     populateCountryTable();
@@ -746,15 +747,14 @@ public class TPCW_Populate extends Loader {
     for (i = 0; i < numTables; i++) {
       try {
         // Delete each table listed in the tables array
-        PreparedStatement statement =
-            con.prepareStatement("DROP TABLE " + tables[i]);
-        statement.executeUpdate();
-        con.commit();
+		String statement = "DROP TABLE " + tables[i];
+		// these aren't reads but w/e
+		conn.executeSingleReadQuery(statement);
         System.out.println("Dropped table " + tables[i]);
       } catch (java.lang.Exception ex) {
         System.out.println("Already dropped table " + tables[i]);
         try {
-          con.rollback();
+          conn.abort();
         } catch (Exception e) {
           e.printStackTrace();
         }
@@ -766,10 +766,9 @@ public class TPCW_Populate extends Loader {
   private static void createTables() {
     try {
       for (String sql : SQL.createTables.split(";")) {
-        PreparedStatement statement = con.prepareStatement(sql);
-        statement.executeUpdate();
+		// these aren't reads but w/e
+        conn.executeSingleReadQuery(sql);
       }
-      con.commit();
       System.out.println("Created tables");
     } catch (java.lang.Exception ex) {
       System.out.println("Unable to create tables");
