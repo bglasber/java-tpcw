@@ -117,9 +117,9 @@ public class TPCW_Populate extends Loader {
 	/*
     // Need to debug
     populateOrdersAndCC_XACTSTable();
+	*/
     addIndexes();
     System.out.println("Done");
-	*/
     closeConnection();
   }
 
@@ -127,11 +127,9 @@ public class TPCW_Populate extends Loader {
     System.out.println("Adding Indexes");
     try {
       for (String sql : SQL.createIndexes.split(";")) {
-        PreparedStatement statement = con.prepareStatement(sql);
-        statement.executeUpdate();
+        // these aren't reads but w/e
+        conn.executeSingleReadQuery(sql);
       }
-
-      con.commit();
     } catch (java.lang.Exception ex) {
       System.out.println("Unable to add indexes");
       ex.printStackTrace();
