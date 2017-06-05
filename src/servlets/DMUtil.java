@@ -28,5 +28,9 @@ public class DMUtil {
     return new primary_key(DMConstants.COUNTRY_TABLE_ID, country_id);
   }
 
+  public static primary_key constructItemPrimaryKey(int item_id) {
+    return new primary_key(DMConstants.ITEM_TABLE_ID, item_id);
+  }
+
 
 }

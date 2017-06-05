@@ -113,8 +113,8 @@ public class TPCW_Populate extends Loader {
     populateAuthorTable();
     populateCountryTable();
     populateCustomerTable();
-	/*
     populateItemTable();
+	/*
     // Need to debug
     populateOrdersAndCC_XACTSTable();
     addIndexes();
@@ -562,15 +562,33 @@ public class TPCW_Populate extends Loader {
   }
 
   private static void populateItemTable() {
+    System.out.println("Populating ITEM table with " + num_item + " items");
+    try {
+      int start = 1;
+      while (start <= num_item) {
+        int end = Math.min(num_item, start + numItemsUntilCommit);
+        loadItemTable(start, end);
+        start = end + 1;
+      }
+    } catch (java.lang.Exception ex) {
+      System.err.println("Unable to populate ITEM table");
+      ex.printStackTrace();
+      System.exit(1);
+    }
+  }
+
+  private static void loadItemTable(int start, int end) {
     String I_TITLE;
     GregorianCalendar cal;
     int I_A_ID;
     java.sql.Date I_PUB_DATE;
+    String I_PUB_DATE_STR;
     String I_PUBLISHER, I_SUBJECT, I_DESC;
     int I_RELATED1, I_RELATED2, I_RELATED3, I_RELATED4, I_RELATED5;
     String I_THUMBNAIL, I_IMAGE;
     double I_SRP, I_COST;
     java.sql.Date I_AVAIL;
+    String I_AVAIL_STR;
     int I_STOCK;
     String I_ISBN;
     int I_PAGE;
@@ -593,10 +611,18 @@ public class TPCW_Populate extends Loader {
 
     System.out.println("Populating ITEM table with " + num_item + " items");
     try {
-      PreparedStatement statement = con.prepareStatement(SQL.populateItem);
-      for (int i = 1; i <= num_item; i++) {
+      Map<primary_key, DMConnId> writeLocations = null;
+      List<primary_key> keys = new ArrayList<primary_key>();
+      for (int i = start; i <= end; i++) {
+        keys.add(DMUtil.constructItemPrimaryKey(i));
+      }
+      writeLocations = conn.begin(keys);
+
+      String sqlStatement = SQL.populateItem;
+
+      for (int i = start; i <= end; i++) {
         int month, day, year, maxday;
-        I_TITLE = getRandomAString(14, 60);
+        I_TITLE = "'" + getRandomAString(14, 60) + "'";
         if (i <= (num_item / 4))
           I_A_ID = i;
         else
@@ -612,10 +638,11 @@ public class TPCW_Populate extends Loader {
         day = getRandomInt(1, maxday);
         cal = new GregorianCalendar(year, month, day);
         I_PUB_DATE = new java.sql.Date(cal.getTime().getTime());
+        I_PUB_DATE_STR = "'" + String.valueOf(I_PUB_DATE) + "'";
 
-        I_PUBLISHER = getRandomAString(14, 60);
-        I_SUBJECT = SUBJECTS[getRandomInt(0, NUM_SUBJECTS - 1)];
-        I_DESC = getRandomAString(100, 500);
+        I_PUBLISHER = "'" + getRandomAString(14, 60) + "'";
+        I_SUBJECT = "'" + SUBJECTS[getRandomInt(0, NUM_SUBJECTS - 1)] + "'";
+        I_DESC = "'" + getRandomAString(100, 500) + "'";
 
         I_RELATED1 = getRandomInt(1, num_item);
         do {
@@ -633,8 +660,8 @@ public class TPCW_Populate extends Loader {
         } while (I_RELATED5 == I_RELATED1 || I_RELATED5 == I_RELATED2 ||
                  I_RELATED5 == I_RELATED3 || I_RELATED5 == I_RELATED4);
 
-        I_THUMBNAIL = new String("img" + i % 100 + "/thumb_" + i + ".gif");
-        I_IMAGE = new String("img" + i % 100 + "/image_" + i + ".gif");
+        I_THUMBNAIL = "'" + new String("img" + i % 100 + "/thumb_" + i + ".gif") + "'";
+        I_IMAGE = "'" + new String("img" + i % 100 + "/image_" + i + ".gif") + "'";
         I_SRP = (double)getRandomInt(100, 99999);
         I_SRP /= 100.0;
 
@@ -642,43 +669,33 @@ public class TPCW_Populate extends Loader {
 
         cal.add(Calendar.DAY_OF_YEAR, getRandomInt(1, 30));
         I_AVAIL = new java.sql.Date(cal.getTime().getTime());
+		I_AVAIL_STR = "'" + String.valueOf(I_AVAIL) + "'";
         I_STOCK = getRandomInt(10, 30);
-        I_ISBN = getRandomAString(13);
+        I_ISBN = "'" + getRandomAString(13) + "'";
         I_PAGE = getRandomInt(20, 9999);
-        I_BACKING = BACKINGS[getRandomInt(0, NUM_BACKINGS - 1)];
-        I_DIMENSIONS = ((double)getRandomInt(1, 9999) / 100.0) + "x" +
+        I_BACKING = "'" + BACKINGS[getRandomInt(0, NUM_BACKINGS - 1)] + "'";
+        I_DIMENSIONS = "'" + ((double)getRandomInt(1, 9999) / 100.0) + "x" +
                        ((double)getRandomInt(1, 9999) / 100.0) + "x" +
-                       ((double)getRandomInt(1, 9999) / 100.0);
+                       ((double)getRandomInt(1, 9999) / 100.0) + "'";
+
+        primary_key pk = DMUtil.constructItemPrimaryKey(i);
+        String query =
+            conn.constructQuery(sqlStatement, String.valueOf(i), I_TITLE,
+					String.valueOf(I_A_ID), I_PUB_DATE_STR, I_PUBLISHER,
+					I_SUBJECT, I_DESC,
+					String.valueOf(I_RELATED1),
+					String.valueOf(I_RELATED2),
+					String.valueOf(I_RELATED3),
+					String.valueOf(I_RELATED4),
+					String.valueOf(I_RELATED5),
+					I_THUMBNAIL, I_IMAGE, String.valueOf(I_SRP),
+					String.valueOf(I_COST), I_AVAIL_STR, String.valueOf(I_STOCK),
+					I_ISBN, String.valueOf(I_PAGE), I_BACKING, I_DIMENSIONS);
+        conn.executeWriteQuery(query, writeLocations.get(pk));
 
         // Set parameter
-        statement.setInt(1, i);
-        statement.setString(2, I_TITLE);
-        statement.setInt(3, I_A_ID);
-        statement.setDate(4, I_PUB_DATE);
-        statement.setString(5, I_PUBLISHER);
-        statement.setString(6, I_SUBJECT);
-        statement.setString(7, I_DESC);
-        statement.setInt(8, I_RELATED1);
-        statement.setInt(9, I_RELATED2);
-        statement.setInt(10, I_RELATED3);
-        statement.setInt(11, I_RELATED4);
-        statement.setInt(12, I_RELATED5);
-        statement.setString(13, I_THUMBNAIL);
-        statement.setString(14, I_IMAGE);
-        statement.setDouble(15, I_SRP);
-        statement.setDouble(16, I_COST);
-        statement.setDate(17, I_AVAIL);
-        statement.setInt(18, I_STOCK);
-        statement.setString(19, I_ISBN);
-        statement.setInt(20, I_PAGE);
-        statement.setString(21, I_BACKING);
-        statement.setString(22, I_DIMENSIONS);
-
-        statement.executeUpdate();
-        if (i % 1000 == 0)
-          con.commit();
       }
-      con.commit();
+      conn.commit();
     } catch (java.lang.Exception ex) {
       System.err.println("Unable to populate ITEM table");
       ex.printStackTrace();

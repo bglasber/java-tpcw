@@ -12,4 +12,7 @@ public abstract class DMConstants {
 
 	// scale is 2880 * num_eb
 	public static final int CUSTOMER_TABLE_ID = 4;
+
+	// scale is num_item
+	public static final int ITEM_TABLE_ID = 5;
 }
