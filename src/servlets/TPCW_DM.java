@@ -218,6 +218,23 @@ public class TPCW_DM {
     return vec;
   }
 
+  public static String[] getNameWithinTxn(int eb_id, int cid) {
+    DMConn conn = getConn(eb_id);
+
+    String name[] = new String[2];
+    try {
+      String stmt = SQL.getName;
+      DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(cid));
+	  rs.next();
+      name[0] = rs.getString("c_fname");
+      name[1] = rs.getString("c_lname");
+      rs.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return name;
+  }
+
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {
     Customer cust = null;
     try {
