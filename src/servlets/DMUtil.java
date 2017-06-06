@@ -41,11 +41,24 @@ public class DMUtil {
   }
 
   public static primary_key constructOrderLinePrimaryKey(int order_id,
-                                                         int item_id) {
+                                                         int order_line_id) {
 
-	long row_id = intsIntoLong(order_id, item_id);
+	long row_id = intsIntoLong(order_id, order_line_id);
     return new primary_key(DMConstants.ORDER_LINE_TABLE_ID, row_id);
   }
+
+  public static primary_key
+  constructShoppingCartPrimaryKey(int shopping_cart_id) {
+    return new primary_key(DMConstants.SHOPPING_CART_TABLE_ID,
+                           shopping_cart_id);
+  }
+
+  public static primary_key
+  constructShoppingCartLinePrimaryKey(int shopping_cart_id) {
+    return new primary_key(DMConstants.SHOPPING_CART_LINE_TABLE_ID,
+                           shopping_cart_id);
+  }
+
 
   public static long intsIntoLong(int hi, int lo) {
 	// https://stackoverflow.com/a/21592598

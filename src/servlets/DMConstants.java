@@ -24,4 +24,12 @@ public abstract class DMConstants {
 	// scale is 5 * NUM_ORDERS = 12760 * num_eb
 	public static final int ORDER_LINE_TABLE_ID = 8;
 
+	// scale is unknown
+	public static final int SHOPPING_CART_TABLE_ID = 9;
+
+	// scale is unknown (assume same as shopping cart)
+	public static final int SHOPPING_CART_LINE_TABLE_ID = 10;
+
+
+
 }
