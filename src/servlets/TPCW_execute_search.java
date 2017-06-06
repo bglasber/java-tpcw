@@ -105,7 +105,7 @@ public class TPCW_execute_search extends HttpServlet {
     // Display new products
     if (search_type.equals("author")) {
       books = TPCW_DM.doAuthorSearchWithinTxn(eb_id, search_string);
-    } else if (search_type.equalsWithinTxn("title")) {
+    } else if (search_type.equals("title")) {
       books = TPCW_DM.doTitleSearchWithinTxn(eb_id, search_string);
     } else if (search_type.equals("subject")) {
       books = TPCW_DM.doSubjectSearchWithinTxn(eb_id, search_string);
