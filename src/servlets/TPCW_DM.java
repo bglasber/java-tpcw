@@ -235,6 +235,24 @@ public class TPCW_DM {
     return name;
   }
 
+  public static Vector getNewProductsWithinTxn(int eb_id, String subject) {
+    DMConn conn = getConn(eb_id);
+    Vector vec = new Vector();
+    try {
+      String stmt = SQL.getNewProducts;
+      DMResultSet rs = conn.executeReadQuery(stmt, "'" + subject + "'");
+      while (rs.next()) {
+        ShortBook b = new ShortBook(rs);
+        vec.addElement(b);
+      }
+	  rs.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+    return vec;
+  }
+
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {
     Customer cust = null;
     try {
