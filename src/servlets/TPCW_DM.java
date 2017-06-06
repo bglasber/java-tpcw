@@ -61,7 +61,9 @@ public class TPCW_DM {
     String stmt = SQL.getBook;
     try {
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
+	  rs.next();
       book = new Book(rs);
+	  rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
       abort(eb_id);
@@ -180,6 +182,40 @@ public class TPCW_DM {
 	  abort(eb_id);
     }
     return uname;
+  }
+
+  public static Vector doSubjectSearchWithinTxn(int eb_id, String searchKey) {
+    String stmt = SQL.doSubjectSearch;
+    return doBookAuthorSearchWithinTxn(eb_id, stmt, searchKey);
+  }
+
+  public static Vector doTitleSearchWithinTxn(int eb_id, String searchKey) {
+    String stmt = SQL.doTitleSearch;
+    return doBookAuthorSearchWithinTxn(eb_id, stmt, searchKey);
+  }
+
+  public static Vector doAuthorSearchWithinTxn(int eb_id, String searchKey) {
+    String stmt = SQL.doAuthorSearch;
+    return doBookAuthorSearchWithinTxn(eb_id, stmt, searchKey);
+  }
+
+  public static Vector doBookAuthorSearchWithinTxn(int eb_id, String stmt, String searchKey) {
+    DMConn conn = getConn(eb_id);
+
+    Vector vec = new Vector();
+    try {
+      DMResultSet rs = conn.executeReadQuery(stmt, "'" + searchKey + "'");
+
+      while (rs.next()) {
+        Book b = new Book(rs);
+        vec.addElement(b);
+      }
+      rs.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+    return vec;
   }
 
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {

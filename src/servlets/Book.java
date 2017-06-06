@@ -121,7 +121,6 @@ public class Book {
         // to give to this function.
 
         try {
-			rs.next();
             i_id = rs.getInt("i_id");
             i_title = rs.getString("i_title");
             i_pub_Date = rs.getDate("i_pub_date");
@@ -145,7 +144,6 @@ public class Book {
             a_id = rs.getInt("a_id");
             a_fname = rs.getString("a_fname");
             a_lname = rs.getString("a_lname");
-			rs.close();
         } catch (java.lang.Exception ex) {
             ex.printStackTrace();
         }
