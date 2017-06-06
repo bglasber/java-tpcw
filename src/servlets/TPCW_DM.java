@@ -182,8 +182,103 @@ public class TPCW_DM {
   }
 
   public static Customer beginBuyRequestNewCustomer(int eb_id, Customer cust) {
-    // TODO
+	DMConn conn = getConn(eb_id);
+    try {
+      // first figure out if we are going to need addresses
+      begin(eb_id);
+      int address_id = lookUpAddressWithinTxn(
+          eb_id, cust.addr_street1, cust.addr_street2, cust.addr_city,
+          cust.addr_state, cust.addr_zip, cust.co_name);
+      boolean shouldInsertAddress = true;
+      if (address_id != -1) {
+        shouldInsertAddress = false;
+      }
+      commit(eb_id);
+
+      int c_id = customerCounter.incrementAndGet();
+
+      List<primary_key> keys = new ArrayList<primary_key>();
+      keys.add(DMUtil.constructCustomerPrimaryKey(c_id));
+      if (shouldInsertAddress) {
+        address_id = addressCounter.incrementAndGet();
+        keys.add(DMUtil.constructAddressPrimaryKey(address_id));
+      }
+
+      Map<primary_key, DMConnId> writeLocations = begin(eb_id, keys);
+
+
+      cust.c_discount = (int)(java.lang.Math.random() * 51);
+      cust.c_balance = 0.0;
+      cust.c_ytd_pmt = 0.0;
+      // FIXME - Use SQL CURRENT_TIME to do this
+      cust.c_last_visit = new Date(System.currentTimeMillis());
+      cust.c_since = new Date(System.currentTimeMillis());
+      cust.c_login = new Date(System.currentTimeMillis());
+      cust.c_expiration = new Date(System.currentTimeMillis() +
+                                   7200000); // milliseconds in 2 hours
+      cust.addr_street1 = cust.addr_street1.replaceAll("[^A-Za-z0-9]", "");
+      cust.addr_street2 = cust.addr_street2.replaceAll("[^A-Za-z0-9]", "");
+      cust.addr_city = cust.addr_city.replaceAll("[^A-Za-z0-9]", "");
+      cust.co_name = cust.co_name.replaceAll("[^A-Za-z0-9]", "");
+
+	  cust.addr_id = address_id;
+
+      if (shouldInsertAddress) {
+        enterAddressWithinTxn(eb_id, writeLocations, address_id,
+                              cust.addr_street1, cust.addr_street2,
+                              cust.addr_city, cust.addr_state, cust.addr_zip,
+                              cust.co_name);
+      }
+	  createNewCustomerWithinTxn(eb_id, writeLocations, c_id, cust);
+
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
     return cust;
+  }
+
+  public static void
+  createNewCustomerWithinTxn(int eb_id,
+                             Map<primary_key, DMConnId> writeLocations,
+                             int c_id, Customer cust) {
+    try {
+      DMConn conn = getConn(eb_id);
+
+      String maxIdStmt = SQL.createNewCustomer_maxId;
+      DMResultSet rs = conn.executeReadQuery(maxIdStmt);
+	  rs.next();
+      int max_c_id = rs.getInt("max(c_id)");
+	  rs.close();
+
+      cust.c_id = c_id;
+      cust.c_uname = TPCW_Util.DigSyl(cust.c_id, 0);
+      cust.c_passwd = cust.c_uname.toLowerCase();
+      cust.c_data = cust.c_data.replaceAll("[^A-Za-z0-9]", "");
+
+      primary_key pk = DMUtil.constructCustomerPrimaryKey(c_id);
+      String createNewCustomerStmt = SQL.createNewCustomer;
+      SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+      String query = conn.constructQuery(
+          createNewCustomerStmt, String.valueOf(cust.c_id),
+          "'" + cust.c_uname + "'", "'" + cust.c_passwd + "'",
+          "'" + cust.c_fname + "'", "'" + cust.c_lname + "'",
+          String.valueOf(cust.addr_id), "'" + cust.c_phone + "'",
+          "'" + cust.c_email + "'", "'" + sdf.format(cust.c_since) + "'",
+          "'" + sdf.format(cust.c_last_visit) + "'",
+          "'" + sdf.format(cust.c_login) + "'",
+          "'" + sdf.format(cust.c_expiration) + "'",
+          String.valueOf(cust.c_discount), String.valueOf(cust.c_balance),
+          String.valueOf(cust.c_ytd_pmt),
+          "'" + sdf.format(cust.c_birthdate) + "'", cust.c_data);
+
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
+
   }
 
   public static Customer getCustomerWithinTxn(int eb_id, String uname) {
@@ -205,7 +300,19 @@ public class TPCW_DM {
   public static void
   refreshSessionWithinTxn(int eb_id, Map<primary_key, DMConnId> writeLocations,
                           int C_ID) {
-    // TODO
+    try {
+      DMConn conn = getConn(eb_id);
+
+      primary_key pk = DMUtil.constructCustomerPrimaryKey(C_ID);
+
+      String stmt = SQL.refreshSession;
+      String query = conn.constructQuery(stmt, String.valueOf(C_ID));
+
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+	  abort(eb_id);
+    }
   }
 
   public static BuyConfirmResult
