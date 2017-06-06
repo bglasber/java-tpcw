@@ -145,6 +145,7 @@ public class Book {
             a_id = rs.getInt("a_id");
             a_fname = rs.getString("a_fname");
             a_lname = rs.getString("a_lname");
+			rs.close();
         } catch (java.lang.Exception ex) {
             ex.printStackTrace();
         }

@@ -162,13 +162,12 @@ public class TPCW_DM {
   }
 
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {
-    // TODO
     Customer cust = null;
     try {
       // FIRST do look up to find the cust id so you can modify it
-	  begin(eb_id);
+      begin(eb_id);
       cust = getCustomerWithinTxn(eb_id, uname);
-	  commit(eb_id);
+      commit(eb_id);
 
       List<primary_key> keys = new ArrayList<primary_key>();
       keys.add(DMUtil.constructCustomerPrimaryKey(cust.c_id));
@@ -182,16 +181,24 @@ public class TPCW_DM {
     return cust;
   }
 
-    }
-
   public static Customer beginBuyRequestNewCustomer(int eb_id, Customer cust) {
     // TODO
     return cust;
   }
 
   public static Customer getCustomerWithinTxn(int eb_id, String uname) {
-    // TODO
     Customer cust = null;
+    try {
+      DMConn conn = getConn(eb_id);
+
+      String stmt = SQL.getCustomer;
+      DMResultSet rs = conn.executeReadQuery(stmt, "'" + uname + "'");
+      cust = new Customer(rs);
+
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
     return cust;
   }
 
