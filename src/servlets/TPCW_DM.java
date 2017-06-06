@@ -74,10 +74,9 @@ public class TPCW_DM {
 
   public static BeginShoppingCartResult
   beginShoppingCartWithEmptyCart(int eb_id) {
-    int shoppingId = 0;
+    int shoppingId = shoppingCartCounter.incrementAndGet();
     Map<primary_key, DMConnId> writeLocations =
         beginShoppingCart(eb_id, shoppingId);
-    // TODO
     BeginShoppingCartResult res =
         new BeginShoppingCartResult(writeLocations, shoppingId);
     return res;
@@ -85,17 +84,38 @@ public class TPCW_DM {
 
   public static Map<primary_key, DMConnId> beginShoppingCart(int eb_id,
                                                              int shoppingId) {
-    Map<primary_key, DMConnId> writeLocations = null;
+    List<primary_key> keys = new ArrayList<primary_key>();
+    keys.add(DMUtil.constructShoppingCartPrimaryKey(shoppingId));
 
-    return writeLocations;
+    // TODO
+
+    return begin(eb_id, keys);
   }
 
   public static int
   createEmptyCartWithinTxn(int eb_id, Map<primary_key, DMConnId> writeLocations,
                            int shoppingId) {
 
-    // TODO
-    return shoppingId;
+    DMConn conn = getConn(eb_id);
+
+    int SHOPPING_ID = shoppingId;
+    try {
+      String maxStmt = SQL.createEmptyCart;
+      DMResultSet rs = conn.executeReadQuery(maxStmt);
+
+      rs.next();
+      int max_shopping_id = rs.getInt("COUNT(*)");
+      rs.close();
+
+      primary_key pk = DMUtil.constructShoppingCartPrimaryKey(SHOPPING_ID);
+      String stmt = SQL.createEmptyCart_insert;
+      String query = conn.constructQuery(stmt, String.valueOf(SHOPPING_ID));
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
+    return SHOPPING_ID;
   }
 
   public static Cart doCartWithinTxn(int eb_id,
@@ -103,7 +123,23 @@ public class TPCW_DM {
                                      int SHOPPING_ID, Integer I_ID, Vector ids,
                                      Vector quantities) {
     // TODO
+    DMConn conn = getConn(eb_id);
+
     Cart cart = null;
+    try {
+	  /*
+      if (I_ID != null) {
+        addItemWithinTxn(eb_id, SHOPPING_ID, I_ID.intValue());
+      }
+      refreshCart(eb_id, SHOPPING_ID, ids, quantities);
+      addRandomItemToCartIfNecessary(eb_id, SHOPPING_ID);
+      resetCartTime(eb_id, SHOPPING_ID);
+	  */
+      cart = getCartWithinTxn(eb_id, SHOPPING_ID, 0.0);
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
     return cart;
   }
 

@@ -7,7 +7,7 @@
 # sql.properties for build.xml.
 # 2003 by Jan Kiefer, extracted from TPCW_Database.java.
 #
-# This file is distributed "as is". It comes with no warranty and the 
+# This file is distributed "as is". It comes with no warranty and the
 # author takes no responsibility for the consequences of its use.
 #
 # For Copyright license see tpcw/servlets/TPCW_Database.java.
@@ -21,7 +21,7 @@ public class SQL extends Loader {
 	public static void load() {
 		load(SQL.class, "sql.properties", "sql.");
 	}
-	
+
 	public static String getName="SELECT c_fname,c_lname FROM customer WHERE c_id = ?";
 
 	public static String getBook="SELECT * FROM item,author WHERE item.i_a_id = author.a_id AND i_id = ?";
@@ -112,8 +112,7 @@ public class SQL extends Loader {
 
 	public static String createEmptyCart="SELECT COUNT(*) FROM shopping_cart";
 	public static String createEmptyCart_insert="INSERT into shopping_cart (sc_id, sc_time) " +
-		     "VALUES ((SELECT COUNT(*) FROM ( SELECT * FROM shopping_cart) AS tab)," +
-		     "CURRENT TIMESTAMP)";
+		     "VALUES (?, CURRENT TIMESTAMP)";
 
 	public static String addItem="SELECT scl_qty FROM shopping_cart_line WHERE scl_sc_id = ? AND scl_i_id = ?";
 	public static String addItem_update="UPDATE shopping_cart_line SET scl_qty = ? WHERE scl_sc_id = ? AND scl_i_id = ?";
@@ -196,7 +195,7 @@ public class SQL extends Loader {
     public static String populateCCXacts = "INSERT INTO cc_xacts(cx_o_id,cx_type,cx_num,cx_name,cx_expire,cx_auth_id,cx_xact_amt,cx_xact_date,cx_co_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 	public static String createIndexes = "create index address_addr_co_id on address(addr_co_id);" +
-			"create index addr_zip on address(addr_zip);" + 
+			"create index addr_zip on address(addr_zip);" +
 			"create index customer_c_addr_id on customer(c_addr_id);" +
 			"create index customer_c_uname on customer(c_uname);" +
 			"create index item_i_title on item(i_title);" +
