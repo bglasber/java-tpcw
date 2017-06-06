@@ -1,4 +1,4 @@
-/* 
+/*
  * TPCW_home_interaction.java - Servlet Class implements home interaction.
  *
  ************************************************************************
@@ -9,7 +9,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -20,7 +20,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -64,15 +64,16 @@ public class TPCW_home_interaction extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 		super.init();
-		
+
 		System.err.println("Loading configuration from properties files...");
 		SQL.load();
 		TPCW_Util.load();
+		TPCW_DM.initialize();
 	}
 
 public void doGet(HttpServletRequest req, HttpServletResponse res)
     throws IOException, ServletException {
-      int i;	
+      int i;
       String url;
       Vector column1 = new Vector();
       Vector column2 = new Vector();
@@ -116,13 +117,13 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 
       //Generate Home Page Head
       out.print("<HTML> <HEAD> <TITLE>TPC-W Home Page</TITLE></HEAD>\n");
-      out.print("<BODY BGCOLOR=\"#ffffff\">\n"); 
+      out.print("<BODY BGCOLOR=\"#ffffff\">\n");
       out.print("<H1 ALIGN=\"center\">TPC Web Commerce Benchmark (TPC-W)</H1>\n");
       out.print("<P ALIGN=\"CENTER\">\n");
-      out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\""+ 
+      out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\""+
 		"BORDER=\"0\" WIDTH=\"288\" HEIGHT=\"67\"></P>\n");
       out.print("<H2 ALIGN=\"center\">Home Page</H2>\n");
-      
+
 
       //Say Hello!
       TPCW_say_hello.print_hello(session, req, out);
@@ -136,14 +137,14 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 		" CELLPADDING=\"6\" CELLSPACING=\"0\" WIDTH=\"700\">\n");
       out.print("<TR ALIGN=\"CENTER\" BGCOLOR=\"#ffffff\" VALIGN=\"top\">\n");
       out.print("<TD COLSPAN=\"2\" VALIGN=\"MIDDLE\" WIDTH=\"300\">\n");
-      out.print("<IMG SRC=\"../tpcw/Images/whats_new.gif\""+ 
+      out.print("<IMG SRC=\"../tpcw/Images/whats_new.gif\""+
 		" ALT=\"New Product\">\n");
       out.print("</TD>\n");
       out.print("<TD BGCOLOR=\"#ffffff\" WIDTH=\"100\"></TD>\n");
       out.print("<TD COLSPAN=\"2\" WIDTH=\"300\">\n");
       out.print("<IMG SRC=\"../tpcw/Images/best_sellers.gif\""+
 		" ALT=\"Best Seller\"></TD></TR>\n");
-      
+
       for(i = 0; i < column1.size(); i++){
 	  out.print("<TR><TD><P ALIGN=\"center\">");
 	  url = "TPCW_new_products_servlet";
@@ -153,7 +154,7 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 	  if(C_ID != null)
 	      url = url+"&C_ID=" + C_ID;
 	  out.print("<A HREF=\"" +res.encodeUrl(url));
-	  
+
 	  out.print("\">" + column1.elementAt(i) + "</A></P></TD>\n");
 	  url = "TPCW_new_products_servlet";
 	  url = url+"?subject=" +column2.elementAt(i);
@@ -161,11 +162,11 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 	      url = url + "&SHOPPING_ID=" + SHOPPING_ID;
 	  if(C_ID != null)
 	      url = url+"&C_ID=" + C_ID;
-	  
-	  out.print("<TD><P ALIGN=\"center\"><A HREF=\""+ 
+
+	  out.print("<TD><P ALIGN=\"center\"><A HREF=\""+
 		    res.encodeUrl(url));
-	  
-	  
+
+
 	  out.print("\">" + column2.elementAt(i)+"</A></P></TD>\n");
 	  out.print("<TD BGCOLOR=\"#ffffff\" WIDTH=\"50\"></TD>\n");
 	  out.print("<TD> <P ALIGN=\"center\">");
@@ -175,25 +176,25 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 	      url = url + "&SHOPPING_ID=" + SHOPPING_ID;
 	  if(C_ID != null)
 	      url = url+"&C_ID=" + C_ID;
-	  
+
 	  out.print("<A HREF=\"" + res.encodeUrl(url));
-	  
+
 	  out.print("\">" + column1.elementAt(i) + "</A></P></TD>\n");
-	  
+
 	  url = "TPCW_best_sellers_servlet";
 	  url = url + "?subject=" + column2.elementAt(i);
 	  if(SHOPPING_ID != null)
 	      url = url + "&SHOPPING_ID=" + SHOPPING_ID;
 	  if(C_ID != null)
 	      url = url+"&C_ID=" + C_ID;
-	  
-	  out.print("<TD><P ALIGN=\"center\"><A HREF=\"" + 
+
+	  out.print("<TD><P ALIGN=\"center\"><A HREF=\"" +
 		    res.encodeUrl(url));
 	  out.print("\">" + column2.elementAt(i)+"</A></P></TD>\n");
 	  out.print("</TR>\n");
       }
       out.print("</TABLE>\n");
-      
+
       //Generate shopping cart, search, and order status buttons.
       out.print("<P ALIGN=\"CENTER\">\n");
       url = "TPCW_shopping_cart_interaction";
@@ -202,12 +203,12 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
 	  url = url + "&SHOPPING_ID=" + SHOPPING_ID;
       if(C_ID != null)
 	  url = url+"&C_ID=" + C_ID;
-      
-      out.print("<A HREF=\"" + res.encodeUrl(url)); 
+
+      out.print("<A HREF=\"" + res.encodeUrl(url));
 
       out.print("\"><IMG SRC=\"../tpcw/Images/shopping_cart_B.gif\"" +
 		" ALT=\"Shopping Cart\"></A>\n");
-      
+
       url = "TPCW_search_request_servlet";
       if(SHOPPING_ID != null){
 	  url = url+"?SHOPPING_ID="+SHOPPING_ID;
@@ -216,11 +217,11 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
       }
       else if(C_ID!=null)
 	  url = url + "?C_ID=" + C_ID;
-      
+
       out.print("<A HREF=\"" + res.encodeUrl(url));
       out.print("\"><IMG SRC=\"../tpcw/Images/search_B.gif\"" +
 		" ALT=\"Search\"></A>\n");
-      
+
       url = "TPCW_order_inquiry_servlet";
       if(SHOPPING_ID != null){
 	  url = url+"?SHOPPING_ID="+SHOPPING_ID;
@@ -229,20 +230,20 @@ public void doGet(HttpServletRequest req, HttpServletResponse res)
       }
       else if(C_ID!=null)
 	  url = url + "?C_ID=" + C_ID;
-      
+
       out.print("<A HREF=\"" + res.encodeUrl(url));
-      
+
       out.print("\"><IMG SRC=\"../tpcw/Images/order_status_B.gif\"" +
 		" ALT=\"Order Status\"></A>\n");
-      
+
       //Generate Trailer
       out.print("<hr><font size=-1>\n");
-      out.print("<a href=\"http://www.tpc.org/miscellaneous/TPC_W.folder/Company_Public_Review.html\">TPC-W Benchmark</a>,\n"); 
+      out.print("<a href=\"http://www.tpc.org/miscellaneous/TPC_W.folder/Company_Public_Review.html\">TPC-W Benchmark</a>,\n");
       out.print("<a href=\"http://www.cae.wisc.edu/~mikko/ece902.html\">ECE 902</a>,\n");
       out.print("<a href=\"http://www.cs.wisc.edu/~arch/uwarch\">University of Wisconsin Computer Architecture</a>,November 1999.\n");
       out.print("</font> </BODY> </HTML>\n");
       out.close();
       return;
   }
-    
+
 }

@@ -8,6 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Enumeration;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 import java.text.SimpleDateFormat;
 
 import dm.DMConn;
@@ -20,6 +23,19 @@ import com.dynamic.mastering.primary_key;
 
 public class TPCW_DM {
   private static Map<Integer, DMConn> connMap = new HashMap<>();
+
+  // 0 means no initialization has occurred
+  // 1 means someone is initializing now
+  // 2 means all initialization is complete
+  private static AtomicInteger initializationStage = new AtomicInteger();
+  private static Integer synchronizationPoint = new Integer(0);
+
+  // counters for id's
+  private static AtomicInteger addressCounter = new AtomicInteger();
+  private static AtomicInteger orderCounter = new AtomicInteger();
+  private static AtomicInteger customerCounter = new AtomicInteger();
+  private static AtomicInteger shoppingCartCounter = new AtomicInteger();
+  private static AtomicInteger shoppingCartLineCounter = new AtomicInteger();
 
   public static DMConn getConn(int eb_id) {
     DMConn conn = connMap.get(eb_id);
@@ -146,6 +162,51 @@ public class TPCW_DM {
     return vec;
   }
 
+  public static void initialize() {
+    boolean shouldInitialize = initializationStage.compareAndSet(0, 1);
+    if (!shouldInitialize) {
+      // initialization phase has started
+      try {
+        synchronized (synchronizationPoint) {
+          // wait until things are good to release
+          while (initializationStage.get() != 2) {
+            synchronizationPoint.wait();
+          }
+        }
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+        // We are mega screwed if this happens. Might as well just die...
+		// don't really know what should happen
+      }
+      return;
+    }
+
+	addressCounter.set(getMaxFromTable("address", "addr_id"));
+	orderCounter.set(getMaxFromTable("orders", "o_id"));
+	customerCounter.set(getMaxFromTable("customer", "c_id"));
+	shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
+	// TBD
+	// shoppingCartLineCounter.set(getMaxFromTable("shopping_cart_line", "addr_id"));
+
+	assert(initializationStage.compareAndSet(1, 2));
+	synchronized (synchronizationPoint) { synchronizationPoint.notify(); }
+	return;
+  }
+
+  private static int getMaxFromTable(String tableName, String column) {
+	int max = 0;
+    try {
+	  DMConn conn = getConn(0);
+      String query = "SELECT max(" + column + ") FROM " + tableName;
+      DMResultSet rs = conn.executeSingleReadQuery(query);
+	  rs.next();
+	  max = rs.getInt(column);
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return max;
+  }
+
   public static void begin(int eb_id) {
     // don't care let it go away;
     Map<primary_key, DMConnId> writeLocations =
@@ -174,6 +235,7 @@ public class TPCW_DM {
       abort(eb_id);
     }
   }
+
   public static void abort(int eb_id) {
     DMConn conn = getConn(eb_id);
     try {
