@@ -253,6 +253,69 @@ public class TPCW_DM {
     return vec;
   }
 
+  public static String GetPassword(int eb_id, String cUname) {
+    DMConn conn = getConn(eb_id);
+    if (cUname.equals("")) {
+      return "";
+    }
+    String passwd = null;
+    try {
+      String stmt = SQL.getPassword;
+      DMResultSet rs = conn.executeReadQuery(stmt, "'" + cUname + "'");
+      rs.next();
+      passwd = rs.getString("c_passwd");
+	  rs.close();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      abort(eb_id);
+    }
+    return passwd;
+  }
+
+  public static Order GetMostRecentOrder(int eb_id, String cUname,
+                                         Vector order_lines) {
+    DMConn conn = getConn(eb_id);
+
+    try {
+      order_lines.removeAllElements();
+      int order_id;
+      Order order;
+
+      String stmt = SQL.getMostRecentOrder_id;
+      DMResultSet orderIdRS = conn.executeReadQuery(stmt, "'" + cUname + "'");
+      if (orderIdRS.next()) {
+        order_id = orderIdRS.getInt("o_id");
+		orderIdRS.close();
+      } else {
+		orderIdRS.close();
+        return null;
+      }
+
+      stmt = SQL.getMostRecentOrder_order;
+      DMResultSet recentOrderRS = conn.executeReadQuery(stmt, String.valueOf(order_id));
+      if (recentOrderRS.next()) {
+        order = new Order(recentOrderRS);
+		recentOrderRS.close();
+      } else {
+		recentOrderRS.close();
+        return null;
+      }
+
+      stmt = SQL.getMostRecentOrder_lines;
+      DMResultSet orderLinesRS =
+          conn.executeReadQuery(stmt, String.valueOf(order_id));
+      while (orderLinesRS.next()) {
+        order_lines.addElement(new OrderLine(orderLinesRS));
+      }
+	  orderLinesRS.close();
+      return order;
+    } catch (SQLException e) {
+      e.printStackTrace();
+	  abort(eb_id);
+    }
+    return null;
+  }
+
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {
     Customer cust = null;
     try {
@@ -274,7 +337,7 @@ public class TPCW_DM {
   }
 
   public static Customer beginBuyRequestNewCustomer(int eb_id, Customer cust) {
-	DMConn conn = getConn(eb_id);
+    DMConn conn = getConn(eb_id);
     try {
       // first figure out if we are going to need addresses
       begin(eb_id);
@@ -298,7 +361,6 @@ public class TPCW_DM {
 
       Map<primary_key, DMConnId> writeLocations = begin(eb_id, keys);
 
-
       cust.c_discount = (int)(java.lang.Math.random() * 51);
       cust.c_balance = 0.0;
       cust.c_ytd_pmt = 0.0;
@@ -313,7 +375,7 @@ public class TPCW_DM {
       cust.addr_city = cust.addr_city.replaceAll("[^A-Za-z0-9]", "");
       cust.co_name = cust.co_name.replaceAll("[^A-Za-z0-9]", "");
 
-	  cust.addr_id = address_id;
+      cust.addr_id = address_id;
 
       if (shouldInsertAddress) {
         enterAddressWithinTxn(eb_id, writeLocations, address_id,
@@ -321,7 +383,7 @@ public class TPCW_DM {
                               cust.addr_city, cust.addr_state, cust.addr_zip,
                               cust.co_name);
       }
-	  createNewCustomerWithinTxn(eb_id, writeLocations, c_id, cust);
+      createNewCustomerWithinTxn(eb_id, writeLocations, c_id, cust);
 
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -339,9 +401,9 @@ public class TPCW_DM {
 
       String maxIdStmt = SQL.createNewCustomer_maxId;
       DMResultSet rs = conn.executeReadQuery(maxIdStmt);
-	  rs.next();
+      rs.next();
       int max_c_id = rs.getInt("max(c_id)");
-	  rs.close();
+      rs.close();
 
       cust.c_id = c_id;
       cust.c_uname = TPCW_Util.DigSyl(cust.c_id, 0);
@@ -370,7 +432,6 @@ public class TPCW_DM {
       ex.printStackTrace();
       abort(eb_id);
     }
-
   }
 
   public static Customer getCustomerWithinTxn(int eb_id, String uname) {
@@ -403,7 +464,7 @@ public class TPCW_DM {
       conn.executeWriteQuery(query, writeLocations.get(pk));
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
-	  abort(eb_id);
+      abort(eb_id);
     }
   }
 
