@@ -86,8 +86,7 @@ public class TPCW_DM {
                                                              int shoppingId) {
     List<primary_key> keys = new ArrayList<primary_key>();
     keys.add(DMUtil.constructShoppingCartPrimaryKey(shoppingId));
-
-    // TODO
+    keys.add(DMUtil.constructShoppingCartLinePrimaryKey(shoppingId));
 
     return begin(eb_id, keys);
   }
@@ -122,25 +121,146 @@ public class TPCW_DM {
                                      Map<primary_key, DMConnId> writeLocations,
                                      int SHOPPING_ID, Integer I_ID, Vector ids,
                                      Vector quantities) {
-    // TODO
     DMConn conn = getConn(eb_id);
 
     Cart cart = null;
     try {
-	  /*
       if (I_ID != null) {
-        addItemWithinTxn(eb_id, SHOPPING_ID, I_ID.intValue());
+        addItemWithinTxn(eb_id, writeLocations, SHOPPING_ID, I_ID.intValue());
       }
-      refreshCart(eb_id, SHOPPING_ID, ids, quantities);
-      addRandomItemToCartIfNecessary(eb_id, SHOPPING_ID);
-      resetCartTime(eb_id, SHOPPING_ID);
-	  */
+      refreshCartWithinTxn(eb_id, writeLocations, SHOPPING_ID, ids, quantities);
+      addRandomItemToCartIfNecessaryWithinTxn(eb_id, writeLocations,
+                                              SHOPPING_ID);
+      resetCartTimeWithinTxn(eb_id, writeLocations, SHOPPING_ID);
       cart = getCartWithinTxn(eb_id, SHOPPING_ID, 0.0);
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
       abort(eb_id);
     }
     return cart;
+  }
+
+  public static void
+  resetCartTimeWithinTxn(int eb_id, Map<primary_key, DMConnId> writeLocations,
+                         int SHOPPING_ID) {
+    DMConn conn = getConn(eb_id);
+    try {
+      primary_key pk = DMUtil.constructShoppingCartPrimaryKey(SHOPPING_ID);
+      String stmt = SQL.resetCartTime;
+      String query = conn.constructQuery(stmt, String.valueOf(SHOPPING_ID));
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
+  }
+
+  public static void addRandomItemToCartIfNecessaryWithinTxn(
+      int eb_id, Map<primary_key, DMConnId> writeLocations, int SHOPPING_ID) {
+    DMConn conn = getConn(eb_id);
+
+    int related_item = 0;
+    try {
+      String stmt = SQL.addRandomItemToCartIfNecessary;
+      DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(SHOPPING_ID));
+      if (rs.next()) {
+        if (rs.getInt("COUNT(*)") == 0) {
+          int randId = TPCW_Util.getRandomI_ID();
+          related_item = getRelated1WithinTxn(eb_id, randId);
+          addItemWithinTxn(eb_id, writeLocations, SHOPPING_ID, related_item);
+        }
+      }
+      rs.close();
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      System.out.println(
+          "Adding entry to shopping cart failed: shopping id = " + SHOPPING_ID +
+          " related_item = " + related_item);
+      abort(eb_id);
+    }
+  }
+
+  public static int getRelated1WithinTxn(int eb_id, int I_ID) {
+    DMConn conn = getConn(eb_id);
+
+    int related1 = -1;
+    try {
+      String stmt = SQL.getRelated1;
+      DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(I_ID));
+      rs.next();
+      related1 = rs.getInt("i_related1");
+      rs.close();
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
+    return related1;
+  }
+
+  public static void
+  refreshCartWithinTxn(int eb_id, Map<primary_key, DMConnId> writeLocations,
+                       int SHOPPING_ID, Vector ids, Vector quantities) {
+    DMConn conn = getConn(eb_id);
+
+    int i;
+    try {
+      for (i = 0; i < ids.size(); i++) {
+        String I_IDstr = (String)ids.elementAt(i);
+        String QTYstr = (String)quantities.elementAt(i);
+        int I_ID = Integer.parseInt(I_IDstr);
+        int QTY = Integer.parseInt(QTYstr);
+
+        String query = null;
+        primary_key pk =
+            DMUtil.constructShoppingCartLinePrimaryKey(SHOPPING_ID);
+
+        if (QTY == 0) {
+          String stmt = SQL.refreshCart_remove;
+          query = conn.constructQuery(stmt, String.valueOf(SHOPPING_ID),
+                                      String.valueOf(I_ID));
+        } else {
+          String stmt = SQL.refreshCart_update;
+          query = conn.constructQuery(stmt, String.valueOf(QTY),
+                                      String.valueOf(SHOPPING_ID),
+                                      String.valueOf(I_ID));
+        }
+
+        conn.executeWriteQuery(query, writeLocations.get(pk));
+      }
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
+  }
+
+  public static void addItemWithinTxn(int eb_id,
+                                      Map<primary_key, DMConnId> writeLocations,
+                                      int SHOPPING_ID, int I_ID) {
+    DMConn conn = getConn(eb_id);
+    try {
+      String addItemStmt = SQL.addItem;
+      DMResultSet rs = conn.executeReadQuery(
+          addItemStmt, String.valueOf(SHOPPING_ID), String.valueOf(I_ID));
+      String query = null;
+      primary_key pk = DMUtil.constructShoppingCartLinePrimaryKey(SHOPPING_ID);
+
+      if (rs.next()) {
+        int currqty = rs.getInt("scl_qty");
+        currqty += 1;
+        query = conn.constructQuery(SQL.addItem_update, String.valueOf(currqty),
+                                    String.valueOf(SHOPPING_ID),
+                                    String.valueOf(I_ID));
+      } else {
+        query =
+            conn.constructQuery(SQL.addItem_put, String.valueOf(SHOPPING_ID),
+                                "1", String.valueOf(I_ID));
+      }
+      rs.close();
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      abort(eb_id);
+    }
   }
 
   public static Map<primary_key, DMConnId> beginAdminResponse(int eb_id,
@@ -302,6 +422,7 @@ public class TPCW_DM {
       rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
+      abort(eb_id);
     }
     return name;
   }

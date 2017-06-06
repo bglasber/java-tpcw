@@ -53,6 +53,7 @@ public class DMUtil {
                            shopping_cart_id);
   }
 
+  // TODO decide if this should take an item id as well for finer grain control
   public static primary_key
   constructShoppingCartLinePrimaryKey(int shopping_cart_id) {
     return new primary_key(DMConstants.SHOPPING_CART_LINE_TABLE_ID,
