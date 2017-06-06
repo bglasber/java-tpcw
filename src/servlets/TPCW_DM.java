@@ -161,6 +161,27 @@ public class TPCW_DM {
     return vec;
   }
 
+  public static String GetUserName(int eb_id, int cid) {
+    DMConn conn = getConn(eb_id);
+    String uname = null;
+    try {
+      begin(eb_id);
+
+      String stmt = SQL.getUserName;
+      DMResultSet rs =
+          conn.executeReadQuery(stmt, String.valueOf(cid));
+	  rs.next();
+      uname = rs.getString("c_uname");
+	  rs.close();
+
+      commit(eb_id);
+    } catch (SQLException e) {
+      e.printStackTrace();
+	  abort(eb_id);
+    }
+    return uname;
+  }
+
   public static Customer beginBuyRequestWithCustomer(int eb_id, String uname) {
     Customer cust = null;
     try {
