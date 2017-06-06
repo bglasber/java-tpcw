@@ -162,6 +162,68 @@ public class TPCW_DM {
     return vec;
   }
 
+  public static BuyConfirmResult doBuyConfirm(int eb_id, int shopping_id,
+                                              int customer_id, String cc_type,
+                                              long cc_number, String cc_name,
+                                              Date cc_expiry, String shipping) {
+	  /*
+    Builder builder = connMap.get(eb_id);
+    if (builder == null) {
+      connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id));
+      builder = connMap.get(eb_id);
+    }
+	*/
+
+    BuyConfirmResult result = new BuyConfirmResult();
+	/*
+    try {
+      double c_discount = getCDiscount(eb_id, customer_id);
+      result.cart = getCart(eb_id, shopping_id, c_discount);
+      int ship_addr_id = getCAddr(eb_id, customer_id);
+      result.order_id = enterOrder(eb_id, customer_id, result.cart,
+                                   ship_addr_id, shipping, c_discount);
+      enterCCXact(eb_id, result.order_id, cc_type, cc_number, cc_name,
+                  cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
+      clearCart(eb_id, shopping_id);
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+    }
+	*/
+    return result;
+  }
+
+  public static BuyConfirmResult
+  doBuyConfirm(int eb_id, int shopping_id, int customer_id, String cc_type,
+               long cc_number, String cc_name, Date cc_expiry, String shipping,
+               String street_1, String street_2, String city, String state,
+               String zip, String country) {
+	  /*
+    Builder builder = connMap.get(eb_id);
+    if (builder == null) {
+      connMap.put(eb_id, RESTUtil.makeRestConnection(eb_id));
+      builder = connMap.get(eb_id);
+    }
+	*/
+
+    BuyConfirmResult result = new BuyConfirmResult();
+	/*
+    try {
+      double c_discount = getCDiscount(eb_id, customer_id);
+      result.cart = getCart(eb_id, shopping_id, c_discount);
+      int ship_addr_id =
+          enterAddress(eb_id, street_1, street_2, city, state, zip, country);
+      result.order_id = enterOrder(eb_id, customer_id, result.cart,
+                                   ship_addr_id, shipping, c_discount);
+      enterCCXact(eb_id, result.order_id, cc_type, cc_number, cc_name,
+                  cc_expiry, result.cart.SC_TOTAL, ship_addr_id);
+      clearCart(eb_id, shopping_id);
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+    }
+	*/
+    return result;
+  }
+
   public static void initialize() {
     boolean shouldInitialize = initializationStage.compareAndSet(0, 1);
     if (!shouldInitialize) {
@@ -176,31 +238,32 @@ public class TPCW_DM {
       } catch (InterruptedException e) {
         e.printStackTrace();
         // We are mega screwed if this happens. Might as well just die...
-		// don't really know what should happen
+        // don't really know what should happen
       }
       return;
     }
 
-	addressCounter.set(getMaxFromTable("address", "addr_id"));
-	orderCounter.set(getMaxFromTable("orders", "o_id"));
-	customerCounter.set(getMaxFromTable("customer", "c_id"));
-	shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
-	// TBD
-	// shoppingCartLineCounter.set(getMaxFromTable("shopping_cart_line", "addr_id"));
+    addressCounter.set(getMaxFromTable("address", "addr_id"));
+    orderCounter.set(getMaxFromTable("orders", "o_id"));
+    customerCounter.set(getMaxFromTable("customer", "c_id"));
+    shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
+    // TBD
+    // shoppingCartLineCounter.set(getMaxFromTable("shopping_cart_line",
+    // "addr_id"));
 
-	assert(initializationStage.compareAndSet(1, 2));
-	synchronized (synchronizationPoint) { synchronizationPoint.notify(); }
-	return;
+    assert(initializationStage.compareAndSet(1, 2));
+    synchronized (synchronizationPoint) { synchronizationPoint.notify(); }
+    return;
   }
 
   private static int getMaxFromTable(String tableName, String column) {
-	int max = 0;
+    int max = 0;
     try {
-	  DMConn conn = getConn(0);
+      DMConn conn = getConn(0);
       String query = "SELECT max(" + column + ") FROM " + tableName;
       DMResultSet rs = conn.executeSingleReadQuery(query);
-	  rs.next();
-	  max = rs.getInt(column);
+      rs.next();
+      max = rs.getInt(column);
     } catch (SQLException e) {
       e.printStackTrace();
     }

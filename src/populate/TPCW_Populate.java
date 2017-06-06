@@ -126,10 +126,13 @@ public class TPCW_Populate extends Loader {
   private static void addIndexes() {
     System.out.println("Adding Indexes");
     try {
+      // these aren't reads so make sure you are the only person executing, else
+      // chaos runs wild
+      Map<primary_key, DMConnId> keyToIdMap = conn.begin();
       for (String sql : SQL.createIndexes.split(";")) {
-        // these aren't reads but w/e
-        conn.executeSingleReadQuery(sql);
+        conn.executeWriteQuery(sql);
       }
+	  conn.commit();
     } catch (java.lang.Exception ex) {
       System.out.println("Unable to add indexes");
       ex.printStackTrace();
@@ -878,10 +881,14 @@ public class TPCW_Populate extends Loader {
 
     for (i = 0; i < numTables; i++) {
       try {
+        // these aren't reads so make sure you are the only person executing,
+        // else chaos runs wild
+        Map<primary_key, DMConnId> keyToIdMap = conn.begin();
         // Delete each table listed in the tables array
-		String statement = "DROP TABLE " + tables[i];
-		// these aren't reads but w/e
-		conn.executeSingleReadQuery(statement);
+        String statement = "DROP TABLE " + tables[i];
+        // these aren't reads but w/e
+        conn.executeWriteQuery(statement);
+		conn.commit();
         System.out.println("Dropped table " + tables[i]);
       } catch (java.lang.Exception ex) {
         System.out.println("Already dropped table " + tables[i]);
@@ -897,10 +904,15 @@ public class TPCW_Populate extends Loader {
 
   private static void createTables() {
     try {
+      // these aren't reads so make sure you are the only person executing,
+      // else chaos runs wild
+      Map<primary_key, DMConnId> keyToIdMap = conn.begin();
+
       for (String sql : SQL.createTables.split(";")) {
 		// these aren't reads but w/e
-        conn.executeSingleReadQuery(sql);
+        conn.executeWriteQuery(sql);
       }
+	  conn.commit();
       System.out.println("Created tables");
     } catch (java.lang.Exception ex) {
       System.out.println("Unable to create tables");
