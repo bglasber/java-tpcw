@@ -113,9 +113,9 @@ public class TPCW_admin_response_servlet extends HttpServlet {
       out.print("<H2>Invalid Input</H2>");
     } else {
       // Update the database
-      TPCW_DM.adminUpdate(eb_id, writeLocations, I_ID,
-                          I_NEW_COSTdbl.doubleValue(), I_NEW_IMAGE,
-                          I_NEW_THUMBNAIL);
+      TPCW_DM.adminUpdateWithinTxn(eb_id, writeLocations, I_ID,
+                                   I_NEW_COSTdbl.doubleValue(), I_NEW_IMAGE,
+                                   I_NEW_THUMBNAIL);
       TPCW_DM.commit(eb_id);
 
       out.print("<H2>Product Updated</H2>");
