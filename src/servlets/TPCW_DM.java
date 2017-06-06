@@ -61,15 +61,50 @@ public class TPCW_DM {
     String stmt = SQL.getBook;
     try {
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
-	  rs.next();
+      rs.next();
       book = new Book(rs);
-	  rs.close();
+      rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
       abort(eb_id);
     }
 
     return book;
+  }
+
+  public static BeginShoppingCartResult
+  beginShoppingCartWithEmptyCart(int eb_id) {
+    int shoppingId = 0;
+    Map<primary_key, DMConnId> writeLocations =
+        beginShoppingCart(eb_id, shoppingId);
+    // TODO
+    BeginShoppingCartResult res =
+        new BeginShoppingCartResult(writeLocations, shoppingId);
+    return res;
+  }
+
+  public static Map<primary_key, DMConnId> beginShoppingCart(int eb_id,
+                                                             int shoppingId) {
+    Map<primary_key, DMConnId> writeLocations = null;
+
+    return writeLocations;
+  }
+
+  public static int
+  createEmptyCartWithinTxn(int eb_id, Map<primary_key, DMConnId> writeLocations,
+                           int shoppingId) {
+
+    // TODO
+    return shoppingId;
+  }
+
+  public static Cart doCartWithinTxn(int eb_id,
+                                     Map<primary_key, DMConnId> writeLocations,
+                                     int SHOPPING_ID, Integer I_ID, Vector ids,
+                                     Vector quantities) {
+    // TODO
+    Cart cart = null;
+    return cart;
   }
 
   public static Map<primary_key, DMConnId> beginAdminResponse(int eb_id,
@@ -170,16 +205,15 @@ public class TPCW_DM {
       begin(eb_id);
 
       String stmt = SQL.getUserName;
-      DMResultSet rs =
-          conn.executeReadQuery(stmt, String.valueOf(cid));
-	  rs.next();
+      DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(cid));
+      rs.next();
       uname = rs.getString("c_uname");
-	  rs.close();
+      rs.close();
 
       commit(eb_id);
     } catch (SQLException e) {
       e.printStackTrace();
-	  abort(eb_id);
+      abort(eb_id);
     }
     return uname;
   }
@@ -199,7 +233,8 @@ public class TPCW_DM {
     return doBookAuthorSearchWithinTxn(eb_id, stmt, searchKey);
   }
 
-  public static Vector doBookAuthorSearchWithinTxn(int eb_id, String stmt, String searchKey) {
+  public static Vector doBookAuthorSearchWithinTxn(int eb_id, String stmt,
+                                                   String searchKey) {
     DMConn conn = getConn(eb_id);
 
     Vector vec = new Vector();
@@ -225,7 +260,7 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getName;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(cid));
-	  rs.next();
+      rs.next();
       name[0] = rs.getString("c_fname");
       name[1] = rs.getString("c_lname");
       rs.close();
@@ -245,7 +280,7 @@ public class TPCW_DM {
         ShortBook b = new ShortBook(rs);
         vec.addElement(b);
       }
-	  rs.close();
+      rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
       abort(eb_id);
@@ -264,7 +299,7 @@ public class TPCW_DM {
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + cUname + "'");
       rs.next();
       passwd = rs.getString("c_passwd");
-	  rs.close();
+      rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
       abort(eb_id);
@@ -285,19 +320,20 @@ public class TPCW_DM {
       DMResultSet orderIdRS = conn.executeReadQuery(stmt, "'" + cUname + "'");
       if (orderIdRS.next()) {
         order_id = orderIdRS.getInt("o_id");
-		orderIdRS.close();
+        orderIdRS.close();
       } else {
-		orderIdRS.close();
+        orderIdRS.close();
         return null;
       }
 
       stmt = SQL.getMostRecentOrder_order;
-      DMResultSet recentOrderRS = conn.executeReadQuery(stmt, String.valueOf(order_id));
+      DMResultSet recentOrderRS =
+          conn.executeReadQuery(stmt, String.valueOf(order_id));
       if (recentOrderRS.next()) {
         order = new Order(recentOrderRS);
-		recentOrderRS.close();
+        recentOrderRS.close();
       } else {
-		recentOrderRS.close();
+        recentOrderRS.close();
         return null;
       }
 
@@ -307,11 +343,11 @@ public class TPCW_DM {
       while (orderLinesRS.next()) {
         order_lines.addElement(new OrderLine(orderLinesRS));
       }
-	  orderLinesRS.close();
+      orderLinesRS.close();
       return order;
     } catch (SQLException e) {
       e.printStackTrace();
-	  abort(eb_id);
+      abort(eb_id);
     }
     return null;
   }
