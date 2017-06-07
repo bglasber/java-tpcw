@@ -110,7 +110,7 @@ public class TPCW_DM {
       DMResultSet rs = conn.executeReadQuery(maxStmt);
 
       if (rs.next()) {
-        int max_shopping_id = rs.getInt("COUNT(*)");
+        int max_shopping_id = rs.getInt("count");
       }
       rs.close();
 
@@ -172,7 +172,7 @@ public class TPCW_DM {
       String stmt = SQL.addRandomItemToCartIfNecessary;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(SHOPPING_ID));
       if (rs.next()) {
-        if (rs.getInt("COUNT(*)") == 0) {
+        if (rs.getInt("count") == 0) {
           int randId = TPCW_Util.getRandomI_ID();
           related_item = getRelated1WithinTxn(eb_id, randId);
           addItemWithinTxn(eb_id, writeLocations, SHOPPING_ID, related_item);

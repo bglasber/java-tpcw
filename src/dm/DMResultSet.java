@@ -1,12 +1,14 @@
 package dm;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import java.text.SimpleDateFormat;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TSSLTransportFactory;
@@ -22,6 +24,12 @@ import org.slf4j.LoggerFactory;
 import com.dynamic.mastering.*;
 
 public class DMResultSet {
+  private static final SimpleDateFormat ymdFormat =
+      new SimpleDateFormat("yyyy-MM-dd");
+  private static final SimpleDateFormat ymdhmssFormat =
+      new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+
+
   private Logger log = LoggerFactory.getLogger(this.getClass());
 
   private query_result query_res;
@@ -70,7 +78,23 @@ public class DMResultSet {
 
   public Date getDate(String columnLabel) throws SQLException {
     String entry = getString(columnLabel);
-    return Date.valueOf(entry);
+    try {
+      Date d = ymdFormat.parse(entry);
+	  return d;
+    } catch (java.lang.Exception ex) {
+		// don't give up hope yet
+		log.error("Error parsing date as ymd... still have hope:{}", entry);
+    }
+    try {
+      Date d = ymdhmssFormat.parse(entry);
+	  return d;
+    } catch (java.lang.Exception ex) {
+		// don't give up hope yet
+		log.error("Error parsing date as ymd hmsS... no hope left:{}", entry);
+    }
+	log.error("Error parsing date:{}", entry);
+	// fuck it I hate dates
+	return new Date();
   }
 
   public double getDouble(String columnLabel) throws SQLException {

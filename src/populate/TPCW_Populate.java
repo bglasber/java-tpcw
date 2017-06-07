@@ -88,7 +88,7 @@ public class TPCW_Populate extends Loader {
 
   // ATTENTION: The NUM_EBS and NUM_ITEMS variables are the only variables
   // that should be modified in order to rescale the DB.
-  public static int num_eb = 2;
+  public static int num_eb = 10;
   public static int num_item = 1000;
 
   private static final int NUM_CUSTOMERS = num_eb * 2880;
@@ -102,8 +102,7 @@ public class TPCW_Populate extends Loader {
 
   public static void main(String[] args) {
     System.out.println("Beginning TPCW Database population.");
-	// DO NOT DYNAMICALLY SWAP IN SQL code that's confusing
-    //SQL.load();
+    SQL.load();
     load(TPCW_Populate.class, "tpcw.properties", "");
     rand = new Random();
     getConnection();

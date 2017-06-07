@@ -17,6 +17,16 @@
 package common;
 
 
+// STOP
+// RIGHT
+// NOW
+//
+// If you thought you needed to modify this file. You are wrong.
+// Instead go to the sql/sql-*.properties file that you are setting in
+// the  main.properties sqlFilter file and modify that file instead.
+// SO DON'T MODIFY THIS FILE UNLESS YOU ARE ADDING NEW QUERIES, then add
+// them in the right places
+//
 public class SQL extends Loader {
 	public static void load() {
 		load(SQL.class, "sql.properties", "sql.");
