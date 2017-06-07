@@ -84,7 +84,9 @@ public class DMResultSet {
 
   public String getString(String columnLabel) throws SQLException {
 	  Integer columnIndex = labelToColumnMap.get(columnLabel);
+
 	  if (columnIndex == null) {
+		  log.info("cannot find column:{}", columnLabel);
 		  return null;
 	  }
 	  return getString(columnIndex);
@@ -110,9 +112,11 @@ public class DMResultSet {
   }
 
   private void filLabelToColumnMap() {
-	  int col = 0;
+	  // this is some bull shit indexing by the get string command
+	  int col = 1;
 	  for (att_desc desc : query_res.attDescs) {
 		  labelToColumnMap.put(desc.name, col);
+		  log.info("column label:{}, val:{}", desc.name, col);
 		  col++;
 	  }
   }

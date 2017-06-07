@@ -21,7 +21,11 @@ import common.SQL;
 
 import com.dynamic.mastering.primary_key;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class TPCW_DM {
+  private static Logger log = LoggerFactory.getLogger(TPCW_DM.class);
   private static Map<Integer, DMConn> connMap = new HashMap<>();
 
   // 0 means no initialization has occurred
@@ -38,11 +42,13 @@ public class TPCW_DM {
   private static AtomicInteger shoppingCartLineCounter = new AtomicInteger();
 
   public static DMConn getConn(int eb_id) {
+	log.info("Getting conn for eb_id:{}", eb_id);
     DMConn conn = connMap.get(eb_id);
     if (conn == null) {
       connMap.put(eb_id, DMUtil.makeDMConnection(eb_id));
       conn = connMap.get(eb_id);
     }
+	log.info("Got conn for eb_id:{}", eb_id);
     return conn;
   }
 
@@ -61,8 +67,9 @@ public class TPCW_DM {
     String stmt = SQL.getBook;
     try {
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
-      rs.next();
-      book = new Book(rs);
+      if (rs.next()) {
+        book = new Book(rs);
+      }
       rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
@@ -102,8 +109,9 @@ public class TPCW_DM {
       String maxStmt = SQL.createEmptyCart;
       DMResultSet rs = conn.executeReadQuery(maxStmt);
 
-      rs.next();
-      int max_shopping_id = rs.getInt("COUNT(*)");
+      if (rs.next()) {
+        int max_shopping_id = rs.getInt("COUNT(*)");
+      }
       rs.close();
 
       primary_key pk = DMUtil.constructShoppingCartPrimaryKey(SHOPPING_ID);
@@ -187,8 +195,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getRelated1;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(I_ID));
-      rs.next();
-      related1 = rs.getInt("i_related1");
+      if (rs.next()) {
+        related1 = rs.getInt("i_related1");
+      }
       rs.close();
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -362,8 +371,9 @@ public class TPCW_DM {
 
       String stmt = SQL.getUserName;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(cid));
-      rs.next();
-      uname = rs.getString("c_uname");
+      if (rs.next()) {
+        uname = rs.getString("c_uname");
+      }
       rs.close();
 
       commit(eb_id);
@@ -416,9 +426,10 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getName;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(cid));
-      rs.next();
-      name[0] = rs.getString("c_fname");
-      name[1] = rs.getString("c_lname");
+      if (rs.next()) {
+        name[0] = rs.getString("c_fname");
+        name[1] = rs.getString("c_lname");
+      }
       rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
@@ -454,8 +465,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getPassword;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + cUname + "'");
-      rs.next();
-      passwd = rs.getString("c_passwd");
+      if (rs.next()) {
+        passwd = rs.getString("c_passwd");
+      }
       rs.close();
     } catch (SQLException e) {
       e.printStackTrace();
@@ -594,8 +606,9 @@ public class TPCW_DM {
 
       String maxIdStmt = SQL.createNewCustomer_maxId;
       DMResultSet rs = conn.executeReadQuery(maxIdStmt);
-      rs.next();
-      int max_c_id = rs.getInt("max(c_id)");
+      if (rs.next()) {
+        int max_c_id = rs.getInt("max");
+      }
       rs.close();
 
       cust.c_id = c_id;
@@ -634,7 +647,10 @@ public class TPCW_DM {
 
       String stmt = SQL.getCustomer;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + uname + "'");
-      cust = new Customer(rs);
+      if (rs.next()) {
+        cust = new Customer(rs);
+      }
+	  rs.close();
 
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -778,8 +794,9 @@ public class TPCW_DM {
       // Miss on addr table
       String getMaxAddrIdStmt = SQL.enterAddress_maxId;
       DMResultSet rs = conn.executeReadQuery(getMaxAddrIdStmt);
-      rs.next();
-      int addr_id_max = rs.getInt("max(addr_id)") + 1;
+      if (rs.next()) {
+        int addr_id_max = rs.getInt("max") + 1;
+      }
       rs.close();
 
       primary_key pk = DMUtil.constructAddressPrimaryKey(addr_id);
@@ -833,8 +850,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.enterAddress_id;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + country + "'");
-      rs.next();
-      addr_co_id = rs.getInt("co_id");
+      if (rs.next()) {
+        addr_co_id = rs.getInt("co_id");
+      }
       rs.close();
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -900,8 +918,9 @@ public class TPCW_DM {
     try {
       String getMaxIdStmt = SQL.enterOrder_maxId;
       DMResultSet rs = conn.executeReadQuery(getMaxIdStmt);
-      rs.next();
-      o_id_max = rs.getInt("max(o_id)") + 1;
+      if (rs.next()) {
+        o_id_max = rs.getInt("max") + 1;
+      }
       rs.close();
 
       primary_key pk = DMUtil.constructOrderPrimaryKey(o_id);
@@ -948,8 +967,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getStock;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(i_id));
-      rs.next();
-      stock = rs.getInt("i_stock");
+      if (rs.next()) {
+        stock = rs.getInt("i_stock");
+      }
       rs.close();
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -1002,8 +1022,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getCDiscount;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(c_id));
-      rs.next();
-      c_discount = rs.getDouble("c_discount");
+      if (rs.next()) {
+        c_discount = rs.getDouble("c_discount");
+      }
       rs.close();
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -1019,8 +1040,9 @@ public class TPCW_DM {
     try {
       String stmt = SQL.getCAddr;
       DMResultSet rs = conn.executeReadQuery(stmt, String.valueOf(c_id));
-      rs.next();
-      c_addr_id = rs.getInt("c_addr_id");
+      if (rs.next()) {
+        c_addr_id = rs.getInt("c_addr_id");
+      }
       rs.close();
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
@@ -1048,32 +1070,41 @@ public class TPCW_DM {
   public static void initialize() {
     boolean shouldInitialize = initializationStage.compareAndSet(0, 1);
     if (!shouldInitialize) {
-      // initialization phase has started
-      try {
-        synchronized (synchronizationPoint) {
-          // wait until things are good to release
-          while (initializationStage.get() != 2) {
-            synchronizationPoint.wait();
-          }
-        }
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-        // We are mega screwed if this happens. Might as well just die...
-        // don't really know what should happen
-      }
+      // initialization phase has completed
+      int initValue = initializationStage.get();
+      assertD(
+          initValue == 2,
+          "somehow lost race but got initialization stage of not 2, it is " +
+              initValue);
+      // wait until things are good to release
+      log.info("stage 2 reached");
       return;
     }
 
-    addressCounter.set(getMaxFromTable("address", "addr_id"));
-    orderCounter.set(getMaxFromTable("orders", "o_id"));
-    customerCounter.set(getMaxFromTable("customer", "c_id"));
-    shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
-    // TBD
-    // shoppingCartLineCounter.set(getMaxFromTable("shopping_cart_line",
-    // "addr_id"));
+    try {
+      log.info("Getting maxes, initializationStage is:{}",
+               initializationStage.get());
+      addressCounter.set(getMaxFromTable("address", "addr_id"));
+      log.info("Getting max orders");
+      orderCounter.set(getMaxFromTable("orders", "o_id"));
+      log.info("Getting max customer");
+      customerCounter.set(getMaxFromTable("customer", "c_id"));
+      log.info("Getting max shopping cart");
+      shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
+      /*
+      */
+      // TBD
+      // shoppingCartLineCounter.set(getMaxFromTable("shopping_cart_line",
+      // "addr_id"));
 
-    assert(initializationStage.compareAndSet(1, 2));
-    synchronized (synchronizationPoint) { synchronizationPoint.notify(); }
+      log.info("Notifying initialization done");
+      assertD(initializationStage.compareAndSet(1, 2),
+              "Failed to compare and set");
+      log.info("initialization stage set to: {}", initializationStage.get());
+    } catch (java.lang.Exception ex) {
+      ex.printStackTrace();
+      assertD(true, "Hit exception while doing stuff");
+    }
     return;
   }
 
@@ -1081,11 +1112,15 @@ public class TPCW_DM {
     int max = 0;
     int eb_id = 0;
     try {
+      log.info("Calling get max from table: {}", tableName);
       DMConn conn = getConn(eb_id);
       String query = "SELECT max(" + column + ") FROM " + tableName;
+      log.info("Execute single read query:{}", query);
       DMResultSet rs = conn.executeSingleReadQuery(query);
-      rs.next();
-      max = rs.getInt(column);
+
+      if (rs.next()) {
+        max = rs.getInt("max");
+      }
       rs.close();
     } catch (SQLException e) {
       System.out.println("Unable to get max from table:" + tableName +
@@ -1095,6 +1130,7 @@ public class TPCW_DM {
       // this is mega bad, we are pretty screwed if this happens
       System.exit(1);
     }
+	log.info("Max for table:{} is: {}", tableName, max);
     return max;
   }
 
@@ -1134,5 +1170,16 @@ public class TPCW_DM {
     } catch (SQLException e) {
       e.printStackTrace();
     }
+  }
+
+  public static void assertD(boolean cond, String logMsg) {
+	if (cond) {
+		return;
+	}
+    System.out.println("!!!!!!! ASSERT TRIGGERED!!!!!\n, here is a stack trace:");
+    Thread.dumpStack();
+    System.out.println("!!!!!!! Message is:" + logMsg);
+    System.out.println("!!!!!!! NOW DYING !!!");
+    System.exit(1);
   }
 }

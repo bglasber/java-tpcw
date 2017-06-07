@@ -5,10 +5,17 @@ import dm.DMConn;
 
 import com.dynamic.mastering.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class DMUtil {
+  private static Logger log = LoggerFactory.getLogger(DMUtil.class);
+
   public static DMConn makeDMConnection(long terminalID) {
     String connStr = "tem09:9091";
+	log.info("Making client to:{} as id: {}", connStr, terminalID);
     DMClient client = DMConn.constructDMClient(connStr, (int)terminalID);
+	log.info("Making conn to:{} as id: {}", connStr, terminalID);
     return new DMConn(client);
   }
 

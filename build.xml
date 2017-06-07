@@ -84,6 +84,8 @@
 			<classes dir="${buildDir}" casesensitive="yes">
   				<include name="common/**"/>
   				<include name="servlets/**"/>
+  				<include name="dm/**"/>
+  				<include name="com/**"/>
 			</classes>
 			<classes file="${buildDir}/${tpcwFilter}"/>
 			<classes file="${buildDir}/sql.properties"/>

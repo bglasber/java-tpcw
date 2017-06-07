@@ -150,7 +150,6 @@ public class Customer {
         // to give to this function.
 
         try {
-			rs.next();
             c_id = rs.getInt("c_id");
             c_uname = rs.getString("c_uname");
             c_passwd = rs.getString("c_passwd");
@@ -178,9 +177,6 @@ public class Customer {
             addr_co_id = rs.getInt("addr_co_id");
 
             co_name = rs.getString("co_name");
-
-			rs.close();
-
         } catch (java.lang.Exception ex) {
             ex.printStackTrace();
         }
