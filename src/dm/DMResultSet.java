@@ -64,6 +64,7 @@ public class DMResultSet {
   public void close() { cursor = query_res.ntups; }
   public boolean next() throws SQLException {
     cursor = cursor + 1;
+	log.info("cursor is now at: {} ntups is: {}", cursor, query_res.ntups);
     return (cursor < query_res.ntups);
   }
 
@@ -99,7 +100,9 @@ public class DMResultSet {
 
   public String  getString(int columnIndex) throws SQLException {
     throwIfOutOfBounds(columnIndex);
-    return query_res.tuples.get(cursor).get(columnIndex - 1);
+    String res =  query_res.tuples.get(cursor).get(columnIndex - 1);
+	log.info("got res:{}", res);
+	return res;
   }
 
   private void throwIfOutOfBounds(int columnIndex) throws SQLException {

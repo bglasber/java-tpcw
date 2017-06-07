@@ -350,7 +350,7 @@ public class TPCW_DM {
     Vector vec = new Vector();
     try {
       DMConn conn = getConn(eb_id);
-      DMResultSet rs = conn.executeReadQuery(SQL.getBestSellers, subject);
+      DMResultSet rs = conn.executeReadQuery(SQL.getBestSellers, "'" + subject + "'");
 
       while (rs.next()) {
         vec.addElement(new ShortBook(rs));
@@ -1114,12 +1114,14 @@ public class TPCW_DM {
     try {
       log.info("Calling get max from table: {}", tableName);
       DMConn conn = getConn(eb_id);
-      String query = "SELECT max(" + column + ") FROM " + tableName;
+	  // don't screw myself if this is empty, because apparently pg returns a
+	  // null record
+      String query = "SELECT coalesce(max(" + column + "), 0) FROM " + tableName;
       log.info("Execute single read query:{}", query);
       DMResultSet rs = conn.executeSingleReadQuery(query);
 
       if (rs.next()) {
-        max = rs.getInt("max");
+        max = rs.getInt("coalesce");
       }
       rs.close();
     } catch (SQLException e) {
