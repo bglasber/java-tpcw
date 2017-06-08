@@ -517,10 +517,14 @@ public class RBE extends Loader {
     for (i = 0; i < ebs.size(); i++) {
       EB e = (EB)ebs.elementAt(i);
       System.out.println("main thread: About to interrupt: " + i);
-      // e.interrupt();
-      e.stop();
+      e.interrupt();
+      // e.stop();
       try {
-        e.join();
+        boolean prevAlive = e.isAlive();
+        e.join(10000L);
+        if (prevAlive && e.isAlive()) {
+          System.out.println("main thread: unable to interrupt: " + i);
+        }
       } catch (InterruptedException inte) {
         inte.printStackTrace();
         return;
