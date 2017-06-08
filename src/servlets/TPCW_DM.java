@@ -640,12 +640,14 @@ public class TPCW_DM {
 	  cust.c_fname = sanitize(cust.c_fname);
 	  cust.c_lname = sanitize(cust.c_lname);
 	  cust.c_phone = sanitize(cust.c_phone);
-	  // don't sanitize email, need that @ symbol
+      cust.c_email = sanitize(cust.c_email);
       cust.c_data = sanitize(cust.c_data);
+
 
       primary_key pk = DMUtil.constructCustomerPrimaryKey(c_id);
       String createNewCustomerStmt = SQL.createNewCustomer;
       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
       String query = conn.constructQuery(
           createNewCustomerStmt, String.valueOf(cust.c_id),
           "'" + cust.c_uname + "'", "'" + cust.c_passwd + "'",
@@ -1227,6 +1229,7 @@ public class TPCW_DM {
 
   public static String sanitize(String input) {
 	// this is really annoying
+	// keep @ and . for emails
     String output = input.replaceAll("[^A-Za-z0-9@\\.]", "");
 	return output;
   }
