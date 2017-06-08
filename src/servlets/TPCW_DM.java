@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Enumeration;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 public class TPCW_DM {
   private static Logger log = LoggerFactory.getLogger(TPCW_DM.class);
-  private static Map<Integer, DMConn> connMap = new HashMap<>();
+  private static ConcurrentHashMap<Integer, DMConn> connMap = new ConcurrentHashMap<>();
 
   // 0 means no initialization has occurred
   // 1 means someone is initializing now
@@ -42,13 +43,23 @@ public class TPCW_DM {
   private static AtomicInteger shoppingCartLineCounter = new AtomicInteger();
 
   public static DMConn getConn(int eb_id) {
-	log.info("Getting conn for eb_id:{}", eb_id);
+    log.info("Getting conn for eb_id:{}", eb_id);
     DMConn conn = connMap.get(eb_id);
     if (conn == null) {
-      connMap.put(eb_id, DMUtil.makeDMConnection(eb_id));
-      conn = connMap.get(eb_id);
+      log.info("Constructing conn for eb_id:{}", eb_id);
+      conn = DMUtil.makeDMConnection(eb_id);
+      DMConn prev = connMap.putIfAbsent(eb_id, conn);
+      if (prev != null) {
+        try {
+          log.info("Raced and lost for conn for eb_id:{}", eb_id);
+          conn.close();
+        } catch (SQLException e) {
+          log.error("Error constructing client:{}", e.getMessage());
+        }
+        conn = prev;
+      }
     }
-	log.info("Got conn for eb_id:{}", eb_id);
+    log.info("Got conn for eb_id:{}", eb_id);
     return conn;
   }
 
@@ -288,6 +299,9 @@ public class TPCW_DM {
 
       primary_key pk = DMUtil.constructItemPrimaryKey(i_id);
 
+      image = sanitize(image);
+      thumbnail = sanitize(thumbnail);
+
       String adminQuery = conn.constructQuery(
           SQL.adminUpdate, String.valueOf(cost), "'" + image + "'",
           "'" + thumbnail + "'", String.valueOf(i_id));
@@ -349,6 +363,7 @@ public class TPCW_DM {
   public static Vector getBestSellersWithinTxn(int eb_id, String subject) {
     Vector vec = new Vector();
     try {
+	  subject = sanitize(subject);
       DMConn conn = getConn(eb_id);
       DMResultSet rs = conn.executeReadQuery(SQL.getBestSellers, "'" + subject + "'");
 
@@ -405,6 +420,7 @@ public class TPCW_DM {
 
     Vector vec = new Vector();
     try {
+	  searchKey = sanitize(searchKey);
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + searchKey + "'");
 
       while (rs.next()) {
@@ -442,6 +458,7 @@ public class TPCW_DM {
     DMConn conn = getConn(eb_id);
     Vector vec = new Vector();
     try {
+	  subject = sanitize(subject);
       String stmt = SQL.getNewProducts;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + subject + "'");
       while (rs.next()) {
@@ -463,6 +480,7 @@ public class TPCW_DM {
     }
     String passwd = null;
     try {
+	  cUname = sanitize(cUname);
       String stmt = SQL.getPassword;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + cUname + "'");
       if (rs.next()) {
@@ -485,6 +503,7 @@ public class TPCW_DM {
       int order_id;
       Order order;
 
+	  cUname = sanitize(cUname);
       String stmt = SQL.getMostRecentOrder_id;
       DMResultSet orderIdRS = conn.executeReadQuery(stmt, "'" + cUname + "'");
       if (orderIdRS.next()) {
@@ -575,10 +594,12 @@ public class TPCW_DM {
       cust.c_login = new Date(System.currentTimeMillis());
       cust.c_expiration = new Date(System.currentTimeMillis() +
                                    7200000); // milliseconds in 2 hours
-      cust.addr_street1 = cust.addr_street1.replaceAll("[^A-Za-z0-9]", "");
-      cust.addr_street2 = cust.addr_street2.replaceAll("[^A-Za-z0-9]", "");
-      cust.addr_city = cust.addr_city.replaceAll("[^A-Za-z0-9]", "");
-      cust.co_name = cust.co_name.replaceAll("[^A-Za-z0-9]", "");
+      cust.addr_street1 = sanitize(cust.addr_street1);
+      cust.addr_street2 = sanitize(cust.addr_street2);
+      cust.addr_city = sanitize(cust.addr_city);
+      cust.addr_state = sanitize(cust.addr_state);
+      cust.addr_zip = sanitize(cust.addr_zip);
+      cust.co_name = sanitize(cust.co_name);
 
       cust.addr_id = address_id;
 
@@ -613,8 +634,14 @@ public class TPCW_DM {
 
       cust.c_id = c_id;
       cust.c_uname = TPCW_Util.DigSyl(cust.c_id, 0);
+	  cust.c_uname = sanitize(cust.c_uname);
       cust.c_passwd = cust.c_uname.toLowerCase();
-      cust.c_data = cust.c_data.replaceAll("[^A-Za-z0-9]", "");
+
+	  cust.c_fname = sanitize(cust.c_fname);
+	  cust.c_lname = sanitize(cust.c_lname);
+	  cust.c_phone = sanitize(cust.c_phone);
+	  // don't sanitize email, need that @ symbol
+      cust.c_data = sanitize(cust.c_data);
 
       primary_key pk = DMUtil.constructCustomerPrimaryKey(c_id);
       String createNewCustomerStmt = SQL.createNewCustomer;
@@ -643,6 +670,7 @@ public class TPCW_DM {
   public static Customer getCustomerWithinTxn(int eb_id, String uname) {
     Customer cust = null;
     try {
+	  uname = sanitize(uname);
       DMConn conn = getConn(eb_id);
 
       String stmt = SQL.getCustomer;
@@ -787,9 +815,11 @@ public class TPCW_DM {
     try {
       int addr_co_id = getCountryIdWithinTxn(eb_id, country);
 
-      street1 = street1.replaceAll("[^A-Za-z0-9]", "");
-      street2 = street2.replaceAll("[^A-Za-z0-9]", "");
-      city = city.replaceAll("[^A-Za-z0-9]", "");
+      street1 = sanitize(street1);
+      street2 = sanitize(street2);
+      city = sanitize(city);
+      state = sanitize(state);
+      zip = sanitize(zip);
 
       // Miss on addr table
       String getMaxAddrIdStmt = SQL.enterAddress_maxId;
@@ -823,9 +853,11 @@ public class TPCW_DM {
     try {
       int addr_co_id = getCountryIdWithinTxn(eb_id, country);
 
-      street1 = street1.replaceAll("[^A-Za-z0-9]", "");
-      street2 = street2.replaceAll("[^A-Za-z0-9]", "");
-      city = city.replaceAll("[^A-Za-z0-9]", "");
+      street1 = sanitize(street1);
+      street2 = sanitize(street2);
+      city = sanitize(city);
+      state = sanitize(state);
+      zip = sanitize(zip);
 
       String stmt = SQL.enterAddress_match;
       DMResultSet rs = conn.executeReadQuery(
@@ -848,6 +880,7 @@ public class TPCW_DM {
 
     int addr_co_id = 0;
     try {
+	  country = sanitize(country);
       String stmt = SQL.enterAddress_id;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + country + "'");
       if (rs.next()) {
@@ -888,8 +921,10 @@ public class TPCW_DM {
       cc_type = cc_type.substring(0, 10);
     if (cc_name.length() > 30)
       cc_name = cc_name.substring(0, 30);
-    cc_name = cc_name.replaceAll("[^A-Za-z0-9]", "");
     try {
+      cc_type = sanitize(cc_type);
+      cc_name = sanitize(cc_name);
+
       primary_key pk = DMUtil.constructCCXactsPrimaryKey(o_id);
       String stmt = SQL.enterCCXact;
       String query = conn.constructQuery(
@@ -922,6 +957,8 @@ public class TPCW_DM {
         o_id_max = rs.getInt("max") + 1;
       }
       rs.close();
+
+	  shipping = sanitize(shipping);
 
       primary_key pk = DMUtil.constructOrderPrimaryKey(o_id);
 
@@ -1004,6 +1041,9 @@ public class TPCW_DM {
     int success = 0;
     try {
       primary_key pk = DMUtil.constructOrderLinePrimaryKey(ol_o_id, ol_id);
+
+      ol_comment = sanitize(ol_comment);
+
       String stmt = SQL.addOrderLine;
       String query = conn.constructQuery(
           stmt, String.valueOf(ol_id), String.valueOf(ol_o_id),
@@ -1183,5 +1223,11 @@ public class TPCW_DM {
     System.out.println("!!!!!!! Message is:" + logMsg);
     System.out.println("!!!!!!! NOW DYING !!!");
     System.exit(1);
+  }
+
+  public static String sanitize(String input) {
+	// this is really annoying
+    String output = input.replaceAll("[^A-Za-z0-9@\\.]", "");
+	return output;
   }
 }
