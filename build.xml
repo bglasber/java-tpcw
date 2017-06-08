@@ -63,7 +63,7 @@
   	<target name="build" depends="compile" description="Build the *.class files from source.">
    		<mkdir dir="${distDir}" />
    		<mkdir dir="${buildDir}" />
-   		<javac includeantruntime="true" srcdir="${srcDir}" destdir="${buildDir}">
+   		<javac includeantruntime="true" srcdir="${srcDir}" destdir="${buildDir}" debug="true">
    			<classpath>
    				<pathelement path="${classpath}"/>
                                 <pathelement path="lib/jersey-core-1.9.jar" />

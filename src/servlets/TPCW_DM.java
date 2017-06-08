@@ -630,7 +630,7 @@ public class TPCW_DM {
           "'" + sdf.format(cust.c_expiration) + "'",
           String.valueOf(cust.c_discount), String.valueOf(cust.c_balance),
           String.valueOf(cust.c_ytd_pmt),
-          "'" + sdf.format(cust.c_birthdate) + "'", cust.c_data);
+          "'" + sdf.format(cust.c_birthdate) + "'", "'" + cust.c_data + "'");
 
       conn.executeWriteQuery(query, writeLocations.get(pk));
 
