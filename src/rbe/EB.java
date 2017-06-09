@@ -14,7 +14,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -25,7 +25,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -75,7 +75,7 @@ import rbe.util.CharSetStrPattern;
 
 public class EB extends Thread {
   // Terminate all EBs.
-  public static volatile boolean terminate=false;  
+  public static volatile boolean terminate=false;
   public static AtomicInteger idCounter = new AtomicInteger(1);
 
   int          [/*from*/][/*to*/] transProb;      // Transition probabilities.
@@ -89,8 +89,8 @@ public class EB extends Thread {
   public String name;
   byte [] buffer = new byte[4096];
   int    cid;                // CUSTOMER_ID.  See TPC-W Spec.
-  String sessionID;          // SESSION_ID.  See TPC-W Spec. 
-  int    shopID;             // Shopping ID.  
+  String sessionID;          // SESSION_ID.  See TPC-W Spec.
+  int    shopID;             // Shopping ID.
   String fname = null;       // Customer first name.
   String lname = null;       // Customer last name.
   public RBE rbe;
@@ -102,13 +102,13 @@ public class EB extends Thread {
   // Wait for key-stroke between transisions.
   //   Does not do think-times.
   public boolean waitKey = true;
-  
+
   public Random rand = new Random();
 
   // Think time-scaling.
   public double tt_scale = 1.0;
 
-  // Set this higher to see more messages. 
+  // Set this higher to see more messages.
   public static int DEBUG =0;
 
   public static final int NO_TRANS = 0;
@@ -117,13 +117,13 @@ public class EB extends Thread {
   public static final int ID_UNKNOWN = -1;
 
   private final StrStrPattern imgPat    = new StrStrPattern("<IMG");
-  private final StrStrPattern inputPat  = 
+  private final StrStrPattern inputPat  =
       new StrStrPattern("<INPUT TYPE=\"IMAGE\"");
   private final StrStrPattern srcPat    = new StrStrPattern("SRC=\"");
   private final CharStrPattern quotePat = new CharStrPattern('\"');
 
   public EB(RBE rbe,
-	    int [][] prob, // Transition probabilities.  
+	    int [][] prob, // Transition probabilities.
 	                   //   See TPC-W Spec. Section 5.2.2.
 	    EBTransition [][] trans, // Actual transitions.
 	    int max,     // Number of transitions. -1 implies continuous
@@ -137,8 +137,8 @@ public class EB extends Thread {
     // Make sure prob and trans are well-formed.
     s = prob.length;
     Debug.check(s>0, "No states in prob.");
-    Debug.check(trans.length == s, "Number of states in prob (" + s + 
-		 ") does not equal number of states in trans (" + 
+    Debug.check(trans.length == s, "Number of states in prob (" + s +
+		 ") does not equal number of states in trans (" +
 		 trans.length + ")");
 
     for (j=0;j<s;j++) {
@@ -148,30 +148,30 @@ public class EB extends Thread {
       prev = 0;
       for (i=0;i<s;i++) {
 	if (prob[j][i]==NO_TRANS) {
-	  Debug.check(trans[j][i] == null, "Transition method specified " + 
+	  Debug.check(trans[j][i] == null, "Transition method specified " +
 		       "for impossible transition." + i + ", " + j + " " + trans[j][i]);
 	}
 	else {
-	  Debug.check(prob[j][i] <= MAX_PROB, 
-		       "Transition probability for prob[" + 
-		       j + "][" + i + "] (" + prob[j][i] + 
+	  Debug.check(prob[j][i] <= MAX_PROB,
+		       "Transition probability for prob[" +
+		       j + "][" + i + "] (" + prob[j][i] +
 		       ") is larger than " + MAX_PROB);
-	  Debug.check(prob[j][i] >= MIN_PROB, 
-		       "Transition probability for prob[" + 
-		       j + "][" + i + "] (" + prob[j][i] + 
+	  Debug.check(prob[j][i] >= MIN_PROB,
+		       "Transition probability for prob[" +
+		       j + "][" + i + "] (" + prob[j][i] +
 		       ") is less than " + MIN_PROB);
-	  Debug.check(trans[j][i]!=null, 
-		       "No transition method for possible transition [" + 
+	  Debug.check(trans[j][i]!=null,
+		       "No transition method for possible transition [" +
 		       j +"][" +i + "]");
 
-	  Debug.check(prob[j][i] > prev, 
-		       "Transition [" + j + "][" + i + "] has probability (" + 
-		       prob[j][i] + " not greater than previous " + 
+	  Debug.check(prob[j][i] > prev,
+		       "Transition [" + j + "][" + i + "] has probability (" +
+		       prob[j][i] + " not greater than previous " +
 		       "probability (" + prev + ")");
 	  prev = prob[j][i];
 	}
       }
-      Debug.check(prev==MAX_PROB, "Final probability for state [" + j + 
+      Debug.check(prev==MAX_PROB, "Final probability for state [" + j +
 		   "] ( " + prev + ") is not " + MAX_PROB);
     }
 
@@ -182,11 +182,11 @@ public class EB extends Thread {
     ebId           = idCounter.getAndIncrement();
     System.out.println("Browser assigned id = " + ebId );
 
-    maxTrans = max;    
+    maxTrans = max;
     initialize();
   }
 
-  public final int states() 
+  public final int states()
   {
     return(transProb.length);
   }
@@ -216,7 +216,7 @@ public class EB extends Thread {
     try {
       while ((maxTrans == -1) || (maxTrans>0)) {
 
-	if (terminate) { 
+	if (terminate) {
 	    System.out.println("EB " + name + "commiting suicide!");
 	    return;
 	}
@@ -252,22 +252,22 @@ public class EB extends Thread {
 	    // System.out.println("nextReq trimmed : " + nextReq);
 	  }
 	  URL httpReq = new URL(nextReq);
-	 
+
 	  // 3) Receive HTML response page.
 	  if (DEBUG > 0) {
-	    System.out.println("" + name + "Making request.");
+	    System.out.println("" + name + "Making request: " + nextReq);
 	  }
 	  getHTML(httpReq);
 	  if (DEBUG > 0) {
-	    System.out.println("" + name + "Received HTML.");
+	    System.out.println("" + name + "Received HTML: " + nextReq);
 	  }
 
 	  // 4) Measure absolute response time, TT.T1 = WIRT.T2.  This is a
 	  // time stamp just following the reception of the last byte of the
 	  // HTML response page, which was provided by the SUT.
 	  wirt_t2 = System.currentTimeMillis();
-	
-	  // 5) Compute and store Web Interaction Response Time (WIRT) 
+
+	  // 5) Compute and store Web Interaction Response Time (WIRT)
 	  rbe.stats.interaction(curState, wirt_t1, wirt_t2, tt);
 
 	  if (DEBUG > 2) {
@@ -306,9 +306,9 @@ public class EB extends Thread {
 	      System.out.println("EB " + name + " Caught an interrupted exception!");
 	      return;
 	  }
-	  
+
 	  if (maxTrans > 0) maxTrans--;
-	} 
+	}
 	else
 	    System.out.println("ERROR: nextReq == null!");
       }
@@ -319,7 +319,7 @@ public class EB extends Thread {
     }
   }
 
-  void getHTML(URL url) 
+  void getHTML(URL url)
   {
 
     // System.out.println("Begin reading HTML. " + name);
@@ -343,7 +343,7 @@ public class EB extends Thread {
 	continue;
       }
       try {
-	  
+
 	  //	  while(in.available() == 0){
 	  // System.out.println("Nothing available on input stream!");
 	  //}
@@ -355,7 +355,7 @@ public class EB extends Thread {
 	  }
       }
       catch (IOException ioe) {
-	rbe.stats.error("Unable to read HTML from URL." , 
+	rbe.stats.error("Unable to read HTML from URL." ,
 			url.toExternalForm());
 	retry=true;
 	continue;
@@ -373,10 +373,10 @@ public class EB extends Thread {
 	  catch (InterruptedException inte) {
 	      System.out.println("In getHTML, caught interrupted exception!");
 	      return;
-	  }	  
+	  }
       }
     } while (retry);
-   
+
     try {
       in.close();
     }
@@ -385,7 +385,7 @@ public class EB extends Thread {
     }
 
     /******
-    html = 
+    html =
       "<HTML> AA HTM IM  AA HTM IM  AA HTM IM  AA HTM IM  </HTML>" +
       "<HTML> AA HTM IM  AA HTM IM  AA HTM IM  AA HTM IM  </HTML>" +
       "<HTML> AA HTM IM  AA HTM IM  AA HTM IM  AA HTM IM  </HTML>" +
@@ -478,7 +478,7 @@ public class EB extends Thread {
 	      //	System.out.println("EB #" + sessionID+ "reading image: " + rd.imgURLStr);
 	      if (!rd.readImage()) {
 		  if (DEBUG>2) {
-		      System.out.println("Read " + rd.tot + " bytes from " + 
+		      System.out.println("Read " + rd.tot + " bytes from " +
 					 rd.imgURLStr);
 		  }
 		  imageRd.removeElementAt(i);
@@ -493,23 +493,23 @@ public class EB extends Thread {
       }
     }
   }
-    
-  private void findImg(String html, URL url, StringPattern imgPat, 
+
+  private void findImg(String html, URL url, StringPattern imgPat,
 		    StringPattern srcPat, StringPattern quotePat,
 		    Vector imageRd)
   {
     int cur = 0;
-    
+
     while ((cur = imgPat.find(html, cur)) > -1) {
       cur = srcPat.find(html, imgPat.end()+1);
       quotePat.find(html, srcPat.end()+1);
 
       String imageURLString = html.substring(srcPat.end()+1, quotePat.start());
-      
+
       if (DEBUG>2) {
 	System.out.println("Found image " + imageURLString + " " + name);
       }
-      
+
       imageRd.addElement(new ImageReader(rbe, url, imageURLString, buffer));
       cur = quotePat.start()+1;
     }
@@ -530,19 +530,19 @@ public class EB extends Thread {
 		long r = rbe.negExp(rand, 7000L, 0.36788, 70000L, 4.54e-5, 7000.0);
 
 		r = (long) (tt_scale*r);
-		
+
 		if (DEBUG>0) {
 		  // r =100; // For testing...
 		    //System.out.println("Think time of " + r + "ms.");
 		}
-		
+
 		return(r);
 	 }
   }
 
   long usmd()
   {
-    return(rbe.negExp(rand, 0L, 1.0, 3600000L /*60 minutes*/, 0.0183156, 
+    return(rbe.negExp(rand, 0L, 1.0, 3600000L /*60 minutes*/, 0.0183156,
 		      900000.0 /* 15 minutes */));
   }
 
@@ -564,7 +564,7 @@ public class EB extends Thread {
 	nextReq = curTrans.request(this, html);
 	toHome = trans[curState][j].toHome();
 	if (DEBUG>2) {
-	    System.out.println(name + " from " + curState + " to " + j + 
+	    System.out.println(name + " from " + curState + " to " + j +
 			       " Rand Value " + i +
 			       " via:\n     " + nextReq);
 	}
@@ -606,7 +606,7 @@ public class EB extends Thread {
   public int findID(String html, StrStrPattern tag) {
     int id;
 
-    // NOTE: StringPattern.first/last are not thread-safe. 
+    // NOTE: StringPattern.first/last are not thread-safe.
 
     // Find the tag string.
     int i = tag.find(html);
@@ -629,18 +629,18 @@ public class EB extends Thread {
     }
     else {
       k = k + j;
-    }	 
-    
+    }
+
     id =  Integer.parseInt(html.substring(j, k));
-    
+
     return(id);
   }
 
-  public String findSessionID(String html, StrStrPattern tag, 
+  public String findSessionID(String html, StrStrPattern tag,
 			   StrStrPattern etag) {
     int id;
 
-    // NOTE: StringPattern.first/last are not thread-safe. 
+    // NOTE: StringPattern.first/last are not thread-safe.
 
     // Find the tag string.
     int i = tag.find(html);
@@ -654,7 +654,7 @@ public class EB extends Thread {
     if (j==-1) {
       return(null);
     }
-    
+
     return(html.substring(i,j));
   }
 }
