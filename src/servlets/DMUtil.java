@@ -73,4 +73,12 @@ public class DMUtil {
 	return (((long) hi)) << 32 | (lo & 0xffffffffL);
   }
 
+  public static String sanitize(String input) {
+    // this is really annoying
+    // keep @ and . for emails
+    String output = input.replaceAll("[^A-Za-z0-9@\\.\\']", "");
+	return output;
+  }
+
+
 }

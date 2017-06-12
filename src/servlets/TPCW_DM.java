@@ -43,15 +43,15 @@ public class TPCW_DM {
   private static AtomicInteger shoppingCartLineCounter = new AtomicInteger();
 
   public static DMConn getConn(int eb_id) {
-    log.info("Getting conn for eb_id:{}", eb_id);
+    //log.info("Getting conn for eb_id:{}", eb_id);
     DMConn conn = connMap.get(eb_id);
     if (conn == null) {
-      log.info("Constructing conn for eb_id:{}", eb_id);
+      //log.info("Constructing conn for eb_id:{}", eb_id);
       conn = DMUtil.makeDMConnection(eb_id);
       DMConn prev = connMap.putIfAbsent(eb_id, conn);
       if (prev != null) {
         try {
-          log.info("Raced and lost for conn for eb_id:{}", eb_id);
+          //log.info("Raced and lost for conn for eb_id:{}", eb_id);
           conn.close();
         } catch (SQLException e) {
           log.error("Error constructing client:{}", e.getMessage());
@@ -59,7 +59,7 @@ public class TPCW_DM {
         conn = prev;
       }
     }
-    log.info("Got conn for eb_id:{}", eb_id);
+    //log.info("Got conn for eb_id:{}", eb_id);
     return conn;
   }
 
@@ -299,8 +299,8 @@ public class TPCW_DM {
 
       primary_key pk = DMUtil.constructItemPrimaryKey(i_id);
 
-      image = sanitize(image);
-      thumbnail = sanitize(thumbnail);
+      image = DMUtil.sanitize(image);
+      thumbnail = DMUtil.sanitize(thumbnail);
 
       String adminQuery = conn.constructQuery(
           SQL.adminUpdate, String.valueOf(cost), "'" + image + "'",
@@ -363,7 +363,7 @@ public class TPCW_DM {
   public static Vector getBestSellersWithinTxn(int eb_id, String subject) {
     Vector vec = new Vector();
     try {
-	  subject = sanitize(subject);
+	  subject = DMUtil.sanitize(subject);
       DMConn conn = getConn(eb_id);
       DMResultSet rs = conn.executeReadQuery(SQL.getBestSellers, "'" + subject + "'");
 
@@ -420,7 +420,7 @@ public class TPCW_DM {
 
     Vector vec = new Vector();
     try {
-	  searchKey = sanitize(searchKey);
+	  searchKey = DMUtil.sanitize(searchKey);
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + searchKey + "'");
 
       while (rs.next()) {
@@ -458,7 +458,7 @@ public class TPCW_DM {
     DMConn conn = getConn(eb_id);
     Vector vec = new Vector();
     try {
-	  subject = sanitize(subject);
+	  subject = DMUtil.sanitize(subject);
       String stmt = SQL.getNewProducts;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + subject + "'");
       while (rs.next()) {
@@ -480,7 +480,7 @@ public class TPCW_DM {
     }
     String passwd = null;
     try {
-	  cUname = sanitize(cUname);
+	  cUname = DMUtil.sanitize(cUname);
       String stmt = SQL.getPassword;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + cUname + "'");
       if (rs.next()) {
@@ -503,7 +503,7 @@ public class TPCW_DM {
       int order_id;
       Order order;
 
-	  cUname = sanitize(cUname);
+	  cUname = DMUtil.sanitize(cUname);
       String stmt = SQL.getMostRecentOrder_id;
       DMResultSet orderIdRS = conn.executeReadQuery(stmt, "'" + cUname + "'");
       if (orderIdRS.next()) {
@@ -594,12 +594,12 @@ public class TPCW_DM {
       cust.c_login = new Date(System.currentTimeMillis());
       cust.c_expiration = new Date(System.currentTimeMillis() +
                                    7200000); // milliseconds in 2 hours
-      cust.addr_street1 = sanitize(cust.addr_street1);
-      cust.addr_street2 = sanitize(cust.addr_street2);
-      cust.addr_city = sanitize(cust.addr_city);
-      cust.addr_state = sanitize(cust.addr_state);
-      cust.addr_zip = sanitize(cust.addr_zip);
-      cust.co_name = sanitize(cust.co_name);
+      cust.addr_street1 = DMUtil.sanitize(cust.addr_street1);
+      cust.addr_street2 = DMUtil.sanitize(cust.addr_street2);
+      cust.addr_city = DMUtil.sanitize(cust.addr_city);
+      cust.addr_state = DMUtil.sanitize(cust.addr_state);
+      cust.addr_zip = DMUtil.sanitize(cust.addr_zip);
+      cust.co_name = DMUtil.sanitize(cust.co_name);
 
       cust.addr_id = address_id;
 
@@ -634,14 +634,14 @@ public class TPCW_DM {
 
       cust.c_id = c_id;
       cust.c_uname = TPCW_Util.DigSyl(cust.c_id, 0);
-	  cust.c_uname = sanitize(cust.c_uname);
+	  cust.c_uname = DMUtil.sanitize(cust.c_uname);
       cust.c_passwd = cust.c_uname.toLowerCase();
 
-	  cust.c_fname = sanitize(cust.c_fname);
-	  cust.c_lname = sanitize(cust.c_lname);
-	  cust.c_phone = sanitize(cust.c_phone);
-      cust.c_email = sanitize(cust.c_email);
-      cust.c_data = sanitize(cust.c_data);
+	  cust.c_fname = DMUtil.sanitize(cust.c_fname);
+	  cust.c_lname = DMUtil.sanitize(cust.c_lname);
+	  cust.c_phone = DMUtil.sanitize(cust.c_phone);
+      cust.c_email = DMUtil.sanitize(cust.c_email);
+      cust.c_data = DMUtil.sanitize(cust.c_data);
 
 
       primary_key pk = DMUtil.constructCustomerPrimaryKey(c_id);
@@ -672,7 +672,7 @@ public class TPCW_DM {
   public static Customer getCustomerWithinTxn(int eb_id, String uname) {
     Customer cust = null;
     try {
-	  uname = sanitize(uname);
+	  uname = DMUtil.sanitize(uname);
       DMConn conn = getConn(eb_id);
 
       String stmt = SQL.getCustomer;
@@ -817,11 +817,11 @@ public class TPCW_DM {
     try {
       int addr_co_id = getCountryIdWithinTxn(eb_id, country);
 
-      street1 = sanitize(street1);
-      street2 = sanitize(street2);
-      city = sanitize(city);
-      state = sanitize(state);
-      zip = sanitize(zip);
+      street1 = DMUtil.sanitize(street1);
+      street2 = DMUtil.sanitize(street2);
+      city = DMUtil.sanitize(city);
+      state = DMUtil.sanitize(state);
+      zip = DMUtil.sanitize(zip);
 
       // Miss on addr table
       String getMaxAddrIdStmt = SQL.enterAddress_maxId;
@@ -855,11 +855,11 @@ public class TPCW_DM {
     try {
       int addr_co_id = getCountryIdWithinTxn(eb_id, country);
 
-      street1 = sanitize(street1);
-      street2 = sanitize(street2);
-      city = sanitize(city);
-      state = sanitize(state);
-      zip = sanitize(zip);
+      street1 = DMUtil.sanitize(street1);
+      street2 = DMUtil.sanitize(street2);
+      city = DMUtil.sanitize(city);
+      state = DMUtil.sanitize(state);
+      zip = DMUtil.sanitize(zip);
 
       String stmt = SQL.enterAddress_match;
       DMResultSet rs = conn.executeReadQuery(
@@ -882,7 +882,7 @@ public class TPCW_DM {
 
     int addr_co_id = 0;
     try {
-	  country = sanitize(country);
+	  country = DMUtil.sanitize(country);
       String stmt = SQL.enterAddress_id;
       DMResultSet rs = conn.executeReadQuery(stmt, "'" + country + "'");
       if (rs.next()) {
@@ -924,8 +924,8 @@ public class TPCW_DM {
     if (cc_name.length() > 30)
       cc_name = cc_name.substring(0, 30);
     try {
-      cc_type = sanitize(cc_type);
-      cc_name = sanitize(cc_name);
+      cc_type = DMUtil.sanitize(cc_type);
+      cc_name = DMUtil.sanitize(cc_name);
 
       primary_key pk = DMUtil.constructCCXactsPrimaryKey(o_id);
       String stmt = SQL.enterCCXact;
@@ -960,7 +960,7 @@ public class TPCW_DM {
       }
       rs.close();
 
-	  shipping = sanitize(shipping);
+	  shipping = DMUtil.sanitize(shipping);
 
       primary_key pk = DMUtil.constructOrderPrimaryKey(o_id);
 
@@ -1044,7 +1044,7 @@ public class TPCW_DM {
     try {
       primary_key pk = DMUtil.constructOrderLinePrimaryKey(ol_o_id, ol_id);
 
-      ol_comment = sanitize(ol_comment);
+      ol_comment = DMUtil.sanitize(ol_comment);
 
       String stmt = SQL.addOrderLine;
       String query = conn.constructQuery(
@@ -1127,11 +1127,8 @@ public class TPCW_DM {
       log.info("Getting maxes, initializationStage is:{}",
                initializationStage.get());
       addressCounter.set(getMaxFromTable("address", "addr_id"));
-      log.info("Getting max orders");
       orderCounter.set(getMaxFromTable("orders", "o_id"));
-      log.info("Getting max customer");
       customerCounter.set(getMaxFromTable("customer", "c_id"));
-      log.info("Getting max shopping cart");
       shoppingCartCounter.set(getMaxFromTable("shopping_cart", "sc_id"));
       /*
       */
@@ -1154,12 +1151,12 @@ public class TPCW_DM {
     int max = 0;
     int eb_id = 0;
     try {
-      log.info("Calling get max from table: {}", tableName);
+      //log.info("Calling get max from table: {}", tableName);
       DMConn conn = getConn(eb_id);
 	  // don't screw myself if this is empty, because apparently pg returns a
 	  // null record
       String query = "SELECT coalesce(max(" + column + "), 0) FROM " + tableName;
-      log.info("Execute single read query:{}", query);
+      //log.info("Execute single read query:{}", query);
       DMResultSet rs = conn.executeSingleReadQuery(query);
 
       if (rs.next()) {
@@ -1174,7 +1171,7 @@ public class TPCW_DM {
       // this is mega bad, we are pretty screwed if this happens
       System.exit(1);
     }
-	log.info("Max for table:{} is: {}", tableName, max);
+	//log.info("Max for table:{} is: {}", tableName, max);
     return max;
   }
 
@@ -1225,12 +1222,5 @@ public class TPCW_DM {
     System.out.println("!!!!!!! Message is:" + logMsg);
     System.out.println("!!!!!!! NOW DYING !!!");
     System.exit(1);
-  }
-
-  public static String sanitize(String input) {
-	// this is really annoying
-	// keep @ and . for emails
-    String output = input.replaceAll("[^A-Za-z0-9@\\.]", "");
-	return output;
   }
 }

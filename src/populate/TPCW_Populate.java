@@ -232,11 +232,13 @@ public class TPCW_Populate extends Loader {
         try { // Set parameter
           primary_key pk = DMUtil.constructCustomerPrimaryKey(i);
           String query = conn.constructQuery(
-              sqlStatement, String.valueOf(i), C_UNAME_STR, C_PASSWD, C_FNAME,
-			  C_LNAME, String.valueOf(C_ADDR_ID), String.valueOf(C_PHONE), C_EMAIL,
-			  C_SINCE_STR, C_LAST_LOGIN_STR, C_LOGIN_STR, C_EXPIRATION_STR,
-			  String.valueOf(C_DISCOUNT), String.valueOf(C_BALANCE),
-			  String.valueOf(C_YTD_PMT), C_BIRTHDATE_STR, C_DATA);
+              sqlStatement, String.valueOf(i), DMUtil.sanitize(C_UNAME_STR),
+			  DMUtil.sanitize(C_PASSWD), DMUtil.sanitize(C_FNAME),
+			  DMUtil.sanitize(C_LNAME), String.valueOf(C_ADDR_ID), String.valueOf(C_PHONE),
+			  DMUtil.sanitize(C_EMAIL), C_SINCE_STR, C_LAST_LOGIN_STR, C_LOGIN_STR,
+			  C_EXPIRATION_STR, String.valueOf(C_DISCOUNT),
+			  String.valueOf(C_BALANCE), String.valueOf(C_YTD_PMT),
+			  C_BIRTHDATE_STR, DMUtil.sanitize(C_DATA));
           conn.executeWriteQuery(query, writeLocations.get(pk));
 
         } catch (java.lang.Exception ex) {
@@ -310,8 +312,10 @@ public class TPCW_Populate extends Loader {
 
         primary_key pk = DMUtil.constructAddressPrimaryKey(i);
         String query = conn.constructQuery(
-            sqlStatement, String.valueOf(i), ADDR_STREET1, ADDR_STREET2,
-            ADDR_CITY, ADDR_STATE, ADDR_ZIP, String.valueOf(ADDR_CO_ID));
+            sqlStatement, String.valueOf(i), DMUtil.sanitize(ADDR_STREET1),
+			DMUtil.sanitize(ADDR_STREET2), DMUtil.sanitize(ADDR_CITY),
+			DMUtil.sanitize(ADDR_STATE), DMUtil.sanitize(ADDR_ZIP),
+			String.valueOf(ADDR_CO_ID));
         conn.executeWriteQuery(query, writeLocations.get(pk));
       }
       conn.commit();
@@ -378,8 +382,9 @@ public class TPCW_Populate extends Loader {
         // Set parameter
         primary_key pk = DMUtil.constructAuthorPrimaryKey(i);
         String query =
-            conn.constructQuery(sqlStatement, String.valueOf(i), A_FNAME,
-                                A_LNAME, A_MNAME, A_DOB_STR, A_BIO);
+            conn.constructQuery(sqlStatement, String.valueOf(i),
+					DMUtil.sanitize(A_FNAME), DMUtil.sanitize(A_LNAME),
+					DMUtil.sanitize(A_MNAME), A_DOB_STR, DMUtil.sanitize(A_BIO));
         conn.executeWriteQuery(query, writeLocations.get(pk));
 
       }
@@ -548,8 +553,9 @@ public class TPCW_Populate extends Loader {
 
         primary_key pk = DMUtil.constructCountryPrimaryKey(i);
         String query =
-            conn.constructQuery(sqlStatement, String.valueOf(i), CO_NAME,
-					String.valueOf(CO_EXCHANGE), CO_CURRENCY);
+            conn.constructQuery(sqlStatement, String.valueOf(i),
+					DMUtil.sanitize(CO_NAME), String.valueOf(CO_EXCHANGE),
+					DMUtil.sanitize(CO_CURRENCY));
         conn.executeWriteQuery(query, writeLocations.get(pk));
 
       }
@@ -680,17 +686,21 @@ public class TPCW_Populate extends Loader {
 
         primary_key pk = DMUtil.constructItemPrimaryKey(i);
         String query =
-            conn.constructQuery(sqlStatement, String.valueOf(i), I_TITLE,
-					String.valueOf(I_A_ID), I_PUB_DATE_STR, I_PUBLISHER,
-					I_SUBJECT, I_DESC,
+            conn.constructQuery(sqlStatement, String.valueOf(i),
+					DMUtil.sanitize(I_TITLE),
+					String.valueOf(I_A_ID), I_PUB_DATE_STR,
+					DMUtil.sanitize(I_PUBLISHER),
+					DMUtil.sanitize(I_SUBJECT), DMUtil.sanitize(I_DESC),
 					String.valueOf(I_RELATED1),
 					String.valueOf(I_RELATED2),
 					String.valueOf(I_RELATED3),
 					String.valueOf(I_RELATED4),
 					String.valueOf(I_RELATED5),
-					I_THUMBNAIL, I_IMAGE, String.valueOf(I_SRP),
+					DMUtil.sanitize(I_THUMBNAIL), DMUtil.sanitize(I_IMAGE),
+					String.valueOf(I_SRP),
 					String.valueOf(I_COST), I_AVAIL_STR, String.valueOf(I_STOCK),
-					I_ISBN, String.valueOf(I_PAGE), I_BACKING, I_DIMENSIONS);
+					DMUtil.sanitize(I_ISBN), String.valueOf(I_PAGE),
+					DMUtil.sanitize(I_BACKING), DMUtil.sanitize(I_DIMENSIONS));
         conn.executeWriteQuery(query, writeLocations.get(pk));
 
         // Set parameter
@@ -800,8 +810,8 @@ public class TPCW_Populate extends Loader {
       String orderQuery = conn.constructQuery(
           orderSqlStatement, String.valueOf(orderId), String.valueOf(O_C_ID),
           O_DATE_STR, String.valueOf(O_SUB_TOTAL), String.valueOf(O_TAX),
-          String.valueOf(O_TOTAL), O_SHIP_TYPE, O_SHIP_DATE_STR,
-		  String.valueOf(O_BILL_ADDR_ID), String.valueOf(O_SHIP_ADDR_ID), O_STATUS);
+          String.valueOf(O_TOTAL), DMUtil.sanitize(O_SHIP_TYPE), O_SHIP_DATE_STR,
+		  String.valueOf(O_BILL_ADDR_ID), String.valueOf(O_SHIP_ADDR_ID), DMUtil.sanitize(O_STATUS));
       conn.executeWriteQuery(orderQuery, writeLocations.get(orderPk));
 
       CX_TYPE = "'" + credit_cards[getRandomInt(0, num_card_types - 1)] + "'";
@@ -816,7 +826,8 @@ public class TPCW_Populate extends Loader {
 
 	  String ccQuery = conn.constructQuery(
           ccSqlStatement, String.valueOf(orderId), CX_TYPE, String.valueOf(CX_NUM),
-		  CX_NAME, CX_EXPIRY_STR, CX_AUTH_ID, String.valueOf(O_TOTAL), O_SHIP_DATE_STR,
+		  DMUtil.sanitize(CX_NAME), CX_EXPIRY_STR, DMUtil.sanitize(CX_AUTH_ID),
+		  String.valueOf(O_TOTAL), O_SHIP_DATE_STR,
 		  String.valueOf(CX_CO_ID));
       conn.executeWriteQuery(ccQuery, writeLocations.get(ccPk));
 
@@ -849,7 +860,7 @@ public class TPCW_Populate extends Loader {
       String query = conn.constructQuery(
           orderLineSqlStatement, String.valueOf(OL_ID), String.valueOf(OL_O_ID),
 		  String.valueOf(OL_I_ID), String.valueOf(OL_QTY),
-		  String.valueOf(OL_DISCOUNT), OL_COMMENTS);
+		  String.valueOf(OL_DISCOUNT), DMUtil.sanitize(OL_COMMENTS));
       conn.executeWriteQuery(query, writeLocations.get(pk));
     }
   }

@@ -521,7 +521,7 @@ public class RBE extends Loader {
       // e.stop();
       try {
         boolean prevAlive = e.isAlive();
-        e.join(10000L);
+        e.join(1000L);
         if (prevAlive && e.isAlive()) {
           System.out.println("main thread: unable to interrupt: " + i);
         }
