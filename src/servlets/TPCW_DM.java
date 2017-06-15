@@ -759,6 +759,7 @@ public class TPCW_DM {
                            cc_number, cc_name, cc_expiry, result.cart.SC_TOTAL,
                            ship_addr_id);
       clearCartWithinTxn(eb_id, writeLocations, shopping_id);
+      commit(eb_id);
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
       abort(eb_id);

@@ -20,31 +20,39 @@ public class DMUtil {
   }
 
   public static primary_key constructAddressPrimaryKey(int addr_id) {
-    return new primary_key(DMConstants.ADDRESS_TABLE_ID, addr_id);
+
+	long row_id = intsIntoLong(0, addr_id);
+    return new primary_key(DMConstants.ADDRESS_TABLE_ID, row_id);
   }
 
   public static primary_key constructAuthorPrimaryKey(int auth_id) {
-    return new primary_key(DMConstants.AUTHOR_TABLE_ID, auth_id);
+	long row_id = intsIntoLong(0, auth_id);
+    return new primary_key(DMConstants.AUTHOR_TABLE_ID, row_id);
   }
 
   public static primary_key constructCustomerPrimaryKey(int cust_id) {
-    return new primary_key(DMConstants.CUSTOMER_TABLE_ID, cust_id);
+	long row_id = intsIntoLong(0, cust_id);
+    return new primary_key(DMConstants.CUSTOMER_TABLE_ID, row_id);
   }
 
   public static primary_key constructCountryPrimaryKey(int country_id) {
-    return new primary_key(DMConstants.COUNTRY_TABLE_ID, country_id);
+	long row_id = intsIntoLong(0, country_id);
+    return new primary_key(DMConstants.COUNTRY_TABLE_ID, row_id);
   }
 
   public static primary_key constructItemPrimaryKey(int item_id) {
-    return new primary_key(DMConstants.ITEM_TABLE_ID, item_id);
+	long row_id = intsIntoLong(0, item_id);
+    return new primary_key(DMConstants.ITEM_TABLE_ID, row_id);
   }
 
   public static primary_key constructOrderPrimaryKey(int order_id) {
-    return new primary_key(DMConstants.ORDER_TABLE_ID, order_id);
+	long row_id = intsIntoLong(0, order_id);
+    return new primary_key(DMConstants.ORDER_TABLE_ID, row_id);
   }
 
   public static primary_key constructCCXactsPrimaryKey(int order_id) {
-    return new primary_key(DMConstants.CC_XACTS_TABLE_ID, order_id);
+	long row_id = intsIntoLong(0, order_id);
+    return new primary_key(DMConstants.CC_XACTS_TABLE_ID, row_id);
   }
 
   public static primary_key constructOrderLinePrimaryKey(int order_id,
@@ -56,19 +64,21 @@ public class DMUtil {
 
   public static primary_key
   constructShoppingCartPrimaryKey(int shopping_cart_id) {
+	long row_id = intsIntoLong(0, shopping_cart_id);
     return new primary_key(DMConstants.SHOPPING_CART_TABLE_ID,
-                           shopping_cart_id);
+                           row_id);
   }
 
   // TODO decide if this should take an item id as well for finer grain control
   public static primary_key
   constructShoppingCartLinePrimaryKey(int shopping_cart_id) {
+	long row_id = intsIntoLong(0, shopping_cart_id);
     return new primary_key(DMConstants.SHOPPING_CART_LINE_TABLE_ID,
-                           shopping_cart_id);
+                           row_id);
   }
 
 
-  public static long intsIntoLong(int hi, int lo) {
+  public static long intsIntoLong(int lo, int hi) {
 	// https://stackoverflow.com/a/21592598
 	return (((long) hi)) << 32 | (lo & 0xffffffffL);
   }

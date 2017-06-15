@@ -118,7 +118,7 @@ public class DMClient {
 	}
 	if (decision) {
 		long GLOBAL_END_TIME = System.nanoTime();
-        log.info("EndCommit: took: {} ns", (GLOBAL_END_TIME - GLOBAL_START_TIME));
+        log.info("{} client {} EndCommit: took: {} ns", new java.util.Date(), clientId, (GLOBAL_END_TIME - GLOBAL_START_TIME));
 		siteManagerClient = null;
 	}
 	return decision;
@@ -237,7 +237,7 @@ public class DMClient {
 
       siteManagerClient = null;
 	  GLOBAL_END_TIME = System.nanoTime();
-      log.info("EndAbort: took: {} ns", (GLOBAL_END_TIME - GLOBAL_START_TIME));
+      log.info("{} client {} EndAbort: took: {} ns", new java.util.Date(), clientId, (GLOBAL_END_TIME - GLOBAL_START_TIME));
       return decision;
 
     } catch (InterruptedException ex) {
@@ -249,7 +249,7 @@ public class DMClient {
     }
 
 	GLOBAL_END_TIME = System.nanoTime();
-	log.info("EndAbort: took: {} ns", (GLOBAL_END_TIME - GLOBAL_START_TIME));
+	log.info("{} client {} EndAbort: took: {} ns", new java.util.Date(), clientId, (GLOBAL_END_TIME - GLOBAL_START_TIME));
 	return false;
   }
 
