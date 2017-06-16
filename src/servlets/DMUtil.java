@@ -78,7 +78,7 @@ public class DMUtil {
   }
 
 
-  public static long intsIntoLong(int lo, int hi) {
+  public static long intsIntoLong(int hi, int lo) {
 	// https://stackoverflow.com/a/21592598
 	return (((long) hi)) << 32 | (lo & 0xffffffffL);
   }
