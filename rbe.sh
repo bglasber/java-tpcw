@@ -88,4 +88,4 @@ filename="run"$runnr"_e"$numebs"_"$datum".m"
 
 fact="rbe.EBTPCW"$tftype"Factory"
 
-java -cp build/classes/ rbe.RBE -EB $fact $numebs -OUT $filename -RU $ru -MI $mi -RD $rd -WWW $url -ITEM 1000 -CUST 2880 -GETIM false -DEBUG 1
+java -cp build/classes/ rbe.RBE -EB $fact $numebs -OUT $filename -RU $ru -MI $mi -RD $rd -WWW $url -ITEM 10000 -CUST 288000 -GETIM false -DEBUG 1
