@@ -58,7 +58,7 @@ public class DMUtil {
   public static primary_key constructOrderLinePrimaryKey(int order_id,
                                                          int order_line_id) {
 
-	long row_id = intsIntoLong(order_id, order_line_id);
+	long row_id = intsIntoLong(order_line_id, order_id);
     return new primary_key(DMConstants.ORDER_LINE_TABLE_ID, row_id);
   }
 
