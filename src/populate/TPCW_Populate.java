@@ -88,8 +88,8 @@ public class TPCW_Populate extends Loader {
 
   // ATTENTION: The NUM_EBS and NUM_ITEMS variables are the only variables
   // that should be modified in order to rescale the DB.
-  public static int num_eb = 1000;
-  public static int num_item = 10000;
+  public static int num_eb = 100;
+  public static int num_item = 1000;
 
   private static final int NUM_CUSTOMERS = num_eb * 2880;
   private static final int NUM_ADDRESSES = 2 * NUM_CUSTOMERS;
