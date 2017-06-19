@@ -113,7 +113,7 @@ public class DMClient {
 	boolean decision = false;
 	if (siteManagerIds.size() == 1) {
 		decision = commitClientTransaction(siteManagerClient);
-	} else {
+	} else if (siteManagerIds.size() > 1) { 
 		decision = twoPC();
 	}
 	if (decision) {
