@@ -527,7 +527,7 @@ public class EB extends Thread {
 		return((long) (r*tt_scale));
 	 }
 	 else {
-		long r = rbe.negExp(rand, 7000L, 0.36788, 70000L, 4.54e-5, 7000.0);
+		long r = rbe.negExp(rand, 100L, 0.36788, 1000L, 4.54e-5, 100.0);
 
 		r = (long) (tt_scale*r);
 
