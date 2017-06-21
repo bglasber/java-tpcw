@@ -1028,8 +1028,8 @@ public class TPCW_DM {
     try {
       primary_key pk = DMUtil.constructItemPrimaryKey(i_id);
       String stmt = SQL.setStock;
-      String query = conn.constructQuery(stmt, String.valueOf(i_id),
-                                         String.valueOf(new_stock));
+      String query = conn.constructQuery(stmt, String.valueOf(new_stock),
+                                         String.valueOf(i_id));
       conn.executeWriteQuery(query, writeLocations.get(pk));
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
