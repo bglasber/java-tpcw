@@ -30,6 +30,8 @@ public abstract class DMConstants {
 	// scale is unknown (assume same as shopping cart)
 	public static final int SHOPPING_CART_LINE_TABLE_ID = 10;
 
+	// are you adding new things? Better update DMUtil to handle this
+
 
 
 }

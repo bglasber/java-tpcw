@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Enumeration;
 
@@ -1188,11 +1190,61 @@ public class TPCW_DM {
     Map<primary_key, DMConnId> writeLocations = null;
     try {
       writeLocations = conn.begin(keys);
+	  acquireWriteLocks(eb_id, keys, writeLocations);
     } catch (SQLException e) {
       e.printStackTrace();
       abort(eb_id);
     }
     return writeLocations;
+  }
+
+  public static void
+  acquireWriteLocks(int eb_id, List<primary_key> keys,
+                    Map<primary_key, DMConnId> writeLocations) throws SQLException {
+    if (keys.isEmpty()) {
+      return;
+    }
+
+    DMConn conn = getConn(eb_id);
+
+    log.info("Acquiring write locks for client:{}", eb_id);
+    SortedSet<primary_key> sorted_keys = new TreeSet<primary_key>(keys);
+    for (primary_key pk : sorted_keys) {
+      log.info("Acquire write locks for: {}", pk);
+      String query = generateAcquireWriteLocksQuery(pk);
+      conn.executeWriteQuery(query, writeLocations.get(pk));
+    }
+  }
+
+  public static String generateAcquireWriteLocksQuery(primary_key pk) {
+
+    DMKeyToItemMeaning meaning = DMUtil.generateMeaningFromKey(pk);
+    List<String> columns = meaning.columns;
+    List<String> identifiers = meaning.identifiers;
+
+
+    assertD(columns.size() == identifiers.size(),
+            "Unable to generate acquire write locks query for pk: " + pk);
+
+	StringBuilder query = new StringBuilder("SELECT * FROM ");
+	query.append(meaning.tableName);
+	if (columns.size() != 0) {
+		query.append(" WHERE ");
+		for (int i = 0; i < columns.size(); i++) {
+			query.append(columns.get(i));
+			query.append(" = ");
+			query.append(identifiers.get(i));
+
+			if (i != columns.size() - 1) {
+				query.append(" AND");
+			}
+			query.append(" ");
+		}
+	}
+
+	query.append("FOR UPDATE");
+
+	return query.toString();
   }
 
   public static void commit(int eb_id) {
