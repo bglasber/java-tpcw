@@ -255,11 +255,11 @@ public class EB extends Thread {
 
 	  // 3) Receive HTML response page.
 	  if (DEBUG > 0) {
-	    System.out.println("" + name + "Making request: " + nextReq);
+	    System.out.println("" + name + "@" + new java.util.Date() + "@" + "Making request: " + nextReq);
 	  }
 	  getHTML(httpReq);
 	  if (DEBUG > 0) {
-	    System.out.println("" + name + "Received HTML: " + nextReq);
+	    System.out.println("" + name + "@" + new java.util.Date() + "@" + "Received HTML: " + nextReq);
 	  }
 
 	  // 4) Measure absolute response time, TT.T1 = WIRT.T2.  This is a

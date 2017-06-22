@@ -129,6 +129,7 @@ public class TPCW_order_display_servlet extends HttpServlet {
     out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" "
               + "ALT=\"Home\"></A></P></CENTER>\n");
     out.print("</CENTER></FORM></BODY></HTML>");
+    out.close();
   }
 
   private void printOrder(Order order, Vector lines, PrintWriter out) {
@@ -185,7 +186,6 @@ public class TPCW_order_display_servlet extends HttpServlet {
       }
     }
     out.print("</TABLE><BR></CENTER>\n");
-    out.close();
     return;
   }
 }

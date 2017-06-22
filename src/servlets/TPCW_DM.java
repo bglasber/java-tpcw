@@ -1145,7 +1145,7 @@ public class TPCW_DM {
       log.info("initialization stage set to: {}", initializationStage.get());
     } catch (java.lang.Exception ex) {
       ex.printStackTrace();
-      assertD(true, "Hit exception while doing stuff");
+      assertD(false, "Hit exception while doing stuff");
     }
     return;
   }
