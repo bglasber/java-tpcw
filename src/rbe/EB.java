@@ -518,6 +518,8 @@ public class EB extends Thread {
 
   long thinkTime()
   {
+	  return 0;
+	  /*
 	 if (stagger) {
 		long r = rbe.nextInt(rand, 20000)+100;
 		stagger = false;
@@ -538,6 +540,7 @@ public class EB extends Thread {
 
 		return(r);
 	 }
+	 */
   }
 
   long usmd()
