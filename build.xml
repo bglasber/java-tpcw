@@ -6,14 +6,14 @@
 
 	Original copyright notice as follows:
 -->
-<!-- 
+<!--
 	build.xml for Ant to build and install the TPC-W Java implementation.
 	Copyright 2003 by Jan Kiefer.
-	
-	This file is distributed "as is". It comes with no warranty and the 
+
+	This file is distributed "as is". It comes with no warranty and the
 	author takes no responsibility for the consequences of its use.
-	
-	Usage, distribution and modification is allowed to everyone, as long 
+
+	Usage, distribution and modification is allowed to everyone, as long
 	as reference to the author(s) is given and this license note is included.
 -->
 
@@ -23,27 +23,47 @@
   	<target name="init">
     		<tstamp/>
 
-		<!-- 	This file contains important properties 
+		<!-- 	This file contains important properties
 			you might want to change according to your needs -->
 		<property file="main.properties"/>
 
-		<!-- 	Filter file for some settings needed, 
+		<!-- 	Filter file for some settings needed,
 			change the contents according to your needs -->
 		<property name="tpcwFilter" value="tpcw.properties"/>
 
 		<property name="imgDir" value="images"/>
-		
+
 		<property name="srcDir" value="src"/>
+		<property name="genDir" value="gen-java"/>
 		<property name="distDir" value="build"/>
 		<property name="buildDir" value="${distDir}/classes"/>
 		<property name="docDir" value="api"/>
-  	</target>	
+  	</target>
+
+    <target name="generate" depends="init" description="Build the thrift files from source.">
+    	<!-- Generate the thrift gen-java source -->
+    	<exec executable="thrift" failonerror="true">
+          <arg line="--gen java -r dyna-mast-thrift-def/proto.thrift"/>
+    	</exec>
+    </target>
+
+    <target name="compile" depends="generate">
+        <mkdir dir="${buildDir}"/>
+        <javac includeantruntime="true" srcdir="${genDir}" destdir="${buildDir}">
+          <classpath>
+            <pathelement path="${classpath}"/>
+            <pathelement path="lib/libthrift-0.9.3.jar" />
+			<pathelement path="lib/slf4j-api-1.7.25.jar" />
+			<pathelement path="lib/slf4j-simple-1.7.25.jar" />
+          </classpath>
+        </javac>
+   </target>
 
 	<!-- Build the class files for the servlets and the database populate class -->
-  	<target name="build" depends="init" description="Build the *.class files from source.">
+  	<target name="build" depends="compile" description="Build the *.class files from source.">
    		<mkdir dir="${distDir}" />
    		<mkdir dir="${buildDir}" />
-   		<javac srcdir="${srcDir}" destdir="${buildDir}">
+   		<javac includeantruntime="true" srcdir="${srcDir}" destdir="${buildDir}" debug="true">
    			<classpath>
    				<pathelement path="${classpath}"/>
                                 <pathelement path="lib/jersey-core-1.9.jar" />
@@ -51,7 +71,10 @@
                                 <pathelement path="lib/jersey-client-1.9.jar" />
                                 <pathelement path="lib/commons-lang3-3.0.jar" />
                                 <pathelement path="lib/jettison-1.1.jar" />
-   				<pathelement location="${cpServ}"/>
+								<pathelement path="lib/libthrift-0.9.3.jar" />
+								<pathelement path="lib/slf4j-api-1.7.25.jar" />
+								<pathelement path="lib/slf4j-simple-1.7.25.jar" />
+								<pathelement location="${cpServ}"/>
    			</classpath>
    		</javac>
 		<copy file="${sqlFilter}" tofile="${buildDir}/sql.properties" preservelastmodified="true"/>
@@ -61,13 +84,15 @@
 			<classes dir="${buildDir}" casesensitive="yes">
   				<include name="common/**"/>
   				<include name="servlets/**"/>
+  				<include name="dm/**"/>
+  				<include name="com/**"/>
 			</classes>
 			<classes file="${buildDir}/${tpcwFilter}"/>
 			<classes file="${buildDir}/sql.properties"/>
 			<lib file="${cpJDBC}"/>
 		</war>
   	</target>
-  
+
 	<!-- Documentation -->
   	<target name="docs" depends="init" description="Build the javadoc for the servlets.">
 		<mkdir dir="${docDir}"/>
@@ -87,18 +112,22 @@
 		<delete file="${webappDir}/tpcw.war"/>
 		<copy file="${distDir}/tpcw.war" todir="${webappDir}"/>
 	</target>
-  
+
 	<!-- DB generation -->
 	<target name="gendb" depends="build" description="Generate Database data.">
 		<java classname="populate.TPCW_Populate" fork="true">
          		<classpath>
       				<pathelement path="${classpath}"/>
+					<pathelement path="lib/libthrift-0.9.3.jar" />
+					<pathelement path="lib/slf4j-api-1.7.25.jar" />
+					<pathelement path="lib/slf4j-simple-1.7.25.jar" />
+					<pathelement path="lib/commons-lang3-3.0.jar" />
       				<pathelement path="${buildDir}"/>
       				<pathelement location="${cpJDBC}"/>
          		</classpath>
        		</java>
 	</target>
-	
+
 	<!-- Image generation -->
 	<target name="genimg" depends="build" description="Generate the images for the items.">
 		<mkdir dir="${imagesDir}"/>
@@ -106,7 +135,7 @@
 			<fileset dir="${imgDir}/static" casesensitive="yes">
   				<include name="**/*.gif"/>
   			</fileset>
-		</copy>		
+		</copy>
 		<exec dir="${imgDir}/ImgGen/ImgFiles" executable="make" failonerror="true"/>
 		<property file="${tpcwFilter}"/>
 		<exec dir="${imgDir}" executable="${perlPath}" failonerror="true">
@@ -115,7 +144,7 @@
 			<arg value="${imagesDir}"/>
 		</exec>
 	</target>
-	
+
 	<!-- Clean Up -->
 	<target name="clean" depends="init" description="Remove all generated files and directories (except installed *.war).">
    		<delete dir="${buildDir}" />
@@ -123,6 +152,6 @@
 		<exec dir="${imgDir}/ImgGen/ImgFiles" executable="make" failonerror="true">
 			<arg line="clean"/>
 		</exec>
-  	</target>  
-	
+  	</target>
+
 </project>

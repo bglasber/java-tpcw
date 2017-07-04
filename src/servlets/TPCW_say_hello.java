@@ -1,7 +1,7 @@
-/* 
- * TPCW_say_hello.java - Utility function used by home interaction, 
+/*
+ * TPCW_say_hello.java - Utility function used by home interaction,
  *                       creates a new session id for new users.
- * 
+ *
  ************************************************************************
  *
  * This is part of the the Java TPC-W distribution,
@@ -10,7 +10,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -21,7 +21,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -59,48 +59,46 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class TPCW_say_hello {
-    
-    public static void print_hello(HttpSession session, HttpServletRequest req,
-				   PrintWriter out){
 
+  public static void print_hello(HttpSession session, HttpServletRequest req,
+                                 PrintWriter out) {
 
-    	//int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
-	//If we have seen this session id before
-	if (!session.isNew()) {
-	    int C_ID[] = (int [])session.getValue("C_ID");
-	    //check and see if we have a customer name yet
-	    if (C_ID != null) // Say hello.
-		out.println("Hello " + (String)session.getValue("C_FNAME") +
-			    " " + (String)session.getValue("C_LNAME"));
-	    else out.println("Hello unknown user");
-	} 
-	else {//This is a brand new session
-	    
-	    out.println("Thisis a brand new session!");
-	    // Check to see if a C_ID was given.  If so, get the customer name
-	    // from the database and say hello.
-	    String C_IDstr = req.getParameter("C_ID");
-	    if (C_IDstr != null) {
-		String name[];
-		int C_ID[] = new int[1];
-		C_ID[0] = Integer.parseInt(C_IDstr, 10);
-                out.flush();
-		// Use C_ID to get the user name from the database.
-		name = TPCW_REST.getName(0, C_ID[0]);
-		// Set the values for this session.
-		if(name==null){
-		   out.println("Hello unknown user!");
-		   return;
-		}
-		session.putValue("C_ID", C_ID);
-		session.putValue("C_FNAME", name[0]);
-		session.putValue("C_LNAME", name[1]);
-		out.println("Hello " + name[0] + " " + name[1] +".");
-		
-	    } 
-	    else out.println("Hello unknown user!");
-	}
+    int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
+    // If we have seen this session id before
+    if (!session.isNew()) {
+      int C_ID[] = (int[])session.getValue("C_ID");
+      // check and see if we have a customer name yet
+      if (C_ID != null) // Say hello.
+        out.println("Hello " + (String)session.getValue("C_FNAME") + " " +
+                    (String)session.getValue("C_LNAME"));
+      else
+        out.println("Hello unknown user");
+    } else { // This is a brand new session
+
+      out.println("Thisis a brand new session!");
+      // Check to see if a C_ID was given.  If so, get the customer name
+      // from the database and say hello.
+      String C_IDstr = req.getParameter("C_ID");
+      if (C_IDstr != null) {
+        String name[];
+        int C_ID[] = new int[1];
+        C_ID[0] = Integer.parseInt(C_IDstr, 10);
+        out.flush();
+        // Use C_ID to get the user name from the database.
+        name = TPCW_DM.getNameWithinTxn(eb_id, C_ID[0]);
+        // Set the values for this session.
+        if (name == null) {
+          out.println("Hello unknown user!");
+          return;
+        }
+        session.putValue("C_ID", C_ID);
+        session.putValue("C_FNAME", name[0]);
+        session.putValue("C_LNAME", name[1]);
+        out.println("Hello " + name[0] + " " + name[1] + ".");
+
+      } else
+        out.println("Hello unknown user!");
     }
+  }
 }
-
 

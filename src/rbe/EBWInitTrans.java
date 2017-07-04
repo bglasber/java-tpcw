@@ -15,7 +15,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -26,7 +26,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -68,22 +68,22 @@ public class EBWInitTrans extends EBTransition {
     if (eb.nextInt(10)<8) {
       eb.cid = rbe.NURand(eb.rand, rbe.cidA, 1,rbe.numCustomer);
       eb.sessionID = null;
-      return(rbe.homeURL + "?" + rbe.field_cid + "=" + eb.cid);
+      return(eb.addIDs(rbe.homeURL));
     }
     else {
       eb.cid = eb.ID_UNKNOWN;
       eb.sessionID = null;
-      return(rbe.homeURL);
+      return(eb.addIDs(rbe.homeURL));
     }
   }
 
-  public void postProcess(EB eb, String html) 
+  public void postProcess(EB eb, String html)
   {
 
       //	 System.out.println("INIT: SESSIONID = " + eb.sessionID);
 	 if (eb.sessionID == null) {
 		eb.sessionID = eb.findSessionID(html, RBE.yourSessionID, RBE.endSessionID);
-		
+
 		if (eb.sessionID==null) {
 		  eb.rbe.stats.error("Trey: Unable to find shopping (session) id" +
 									" tag in shopping cart page." + "sessionid = " +  RBE.yourSessionID + " endsessionID = " +RBE.endSessionID+ "\nHtml\n"+  html + "<???>", "<???>");

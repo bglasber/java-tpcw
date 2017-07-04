@@ -1,4 +1,4 @@
-/* 
+/*
  * TPCW_admin_respons_servlet.java - Servlet class implements the admin
  *                                   response web interaction.
  *
@@ -10,7 +10,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -21,7 +21,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -62,108 +62,117 @@ import java.io.*;
 import javax.servlet.*;
 import javax.servlet.http.*;
 
+import java.util.Map;
+
+import com.dynamic.mastering.primary_key;
+
+import dm.DMConnId;
+
 public class TPCW_admin_response_servlet extends HttpServlet {
-    
+
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
-      PrintWriter out = res.getWriter();
-      String url;
+    PrintWriter out = res.getWriter();
+    String url;
 
     // Set the content type of this servlet's result.
-      res.setContentType("text/html");
+    res.setContentType("text/html");
 
-      HttpSession session = req.getSession(false);
-      
-      //Pull out the parameters
-      int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
-      int I_ID = Integer.parseInt((String) req.getParameter("I_ID"));
-      String I_NEW_IMAGE = (String) req.getParameter("I_NEW_IMAGE");
-      String I_NEW_THUMBNAIL = (String) req.getParameter("I_NEW_THUMBNAIL");
-      String I_NEW_COSTstr = (String) req.getParameter("I_NEW_COST");
-      Double I_NEW_COSTdbl = Double.valueOf(I_NEW_COSTstr);
-            
-      String C_ID = req.getParameter("C_ID");
-      String SHOPPING_ID = req.getParameter("SHOPPING_ID");
-      
-      //Get this book out of the database
-      Book book = TPCW_REST.getBook(eb_id, I_ID);
-      
-      //Spit out the HTML
-      out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
-      out.print("<HTML> <HEAD><TITLE>TPC-W Admin Response Page</TITLE></HEAD>\n");
-      out.print("<BODY BGCOLOR=\"#FFFFFF\">\n");
-      out.print("<H1 ALIGN=\"CENTER\">TPC Web Commerce Benchmark (TPC-W)</H1>\n");
-      out.print("<H2 ALIGN=\"CENTER\"><IMG SRC=\"../tpcw/Images/tpclogo.gif\""
-		+"ALIGN=\"BOTTOM\" BORDER=\"0\" WIDTH=\"288\" "
-		+"HEIGHT=\"67\"></H2> ");
-      
-      if(I_NEW_COSTstr.length() == 0 || I_NEW_IMAGE.length() == 0 
-	 || I_NEW_THUMBNAIL.length() == 0) {
-	  out.print("<H2>Invalid Input</H2>");
-      }
-      else {
-	  //Update the database
-	  TPCW_REST.adminUpdate(eb_id, I_ID, I_NEW_COSTdbl.doubleValue(),
-				    I_NEW_IMAGE,I_NEW_THUMBNAIL);
-	  
-	  out.print("<H2>Product Updated</H2>");
-	  out.print("<H2>Title: " + book.i_title + "</H2>\n");
-	  out.print("<P>Author: " + book.a_fname+ " " + book.a_lname + 
-		    "</P>\n");
-	  out.print("<P><IMG SRC=\"../tpcw/Images/" + I_NEW_IMAGE +
-		    "\" ALIGN=\"RIGHT\" BORDER=\"0\" WIDTH=\"200\" " +
-		    "HEIGHT=\"200\">");
-	  out.print("<IMG SRC=\"../tpcw/Images/" + I_NEW_THUMBNAIL + 
-		    "\" ALT=\"Book 1\" ALIGN=\"RIGHT\" WIDTH=\"100\"" 
-		    +" HEIGHT=\"150\">\n");
-	  out.print("Description: " + book.i_desc + "</P>\n");
-	  out.print("<BLOCKQUOTE><P><B>Suggested Retail: $" + book.i_srp +
-		    "</B><BR><B>Our Price: </B><FONT COLOR=\"#DD0000\"><B>" +
-		    I_NEW_COSTstr+"</B></FONT><BR><B>You Save: </B><FONT " + 
-		    "COLOR=\"#DD0000\"><B>" + 
-		    Double.toString((book.i_srp - 
-				     (Double.valueOf(I_NEW_COSTstr)).doubleValue())) + "</B></FONT></P></BLOCKQUOTE> ");
-	  out.print("<P><FONT SIZE=\"2\">" + book.i_backing +", " + 
-		    book.i_page +
-		    " pages<BR>\n");
-	  out.print("Published by " + book.i_publisher + "<BR>\n");
-	  out.print("Publication date: " + book.i_pub_Date + "<BR>\n");
-	  out.print("Dimensions (in inches): " +book.i_dimensions+ "<BR>\n");
-	  out.print("ISBN: " + book.i_isbn + 
-		    "</FONT><BR CLEAR=\"ALL\"></P>\n");
-	  
-	  out.print("<CENTER>");
-	  url = "TPCW_search_request_servlet";
-	  if(SHOPPING_ID != null){
-	      url = url+"?SHOPPING_ID="+SHOPPING_ID;
-	      if(C_ID!=null)
-		  url = url + "&C_ID=" + C_ID;
-	  }
-	  else if(C_ID!=null)
-	      url = url + "?C_ID=" + C_ID;
-	  
-	  out.print("<A HREF=\"" + res.encodeUrl(url));
-	  out.print("\"><IMG SRC=\"../tpcw/Images/search_B.gif\" "
-		    + "ALT=\"Search\"></A>\n");
-	  
-	  url = "TPCW_home_interaction";
-	  if(SHOPPING_ID != null){
-	      url = url+"?SHOPPING_ID="+SHOPPING_ID;
-	      if(C_ID!=null)
-		  url = url + "&C_ID=" + C_ID;
-	  }
-	  else if(C_ID!=null)
-	      url = url + "?C_ID=" + C_ID;
-	  
-	  out.print("<A HREF=\"" + res.encodeUrl(url));
+    HttpSession session = req.getSession(false);
 
-	  out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" " 
-		    + "ALT=\"Home\"></A></P></CENTER>\n");
+    // Pull out the parameters
+    int eb_id = Integer.parseInt((String)req.getParameter("ebid"));
+    int I_ID = Integer.parseInt((String)req.getParameter("I_ID"));
+    String I_NEW_IMAGE = (String)req.getParameter("I_NEW_IMAGE");
+    String I_NEW_THUMBNAIL = (String)req.getParameter("I_NEW_THUMBNAIL");
+    String I_NEW_COSTstr = (String)req.getParameter("I_NEW_COST");
+    Double I_NEW_COSTdbl = Double.valueOf(I_NEW_COSTstr);
 
-	  out.print("</FORM>\n");
-      }
-      out.print("</BODY></HTML>");
-      out.close();
-      return;
+    String C_ID = req.getParameter("C_ID");
+    String SHOPPING_ID = req.getParameter("SHOPPING_ID");
+
+    // Get this book out of the database
+
+    Map<primary_key, DMConnId> writeLocations =
+        TPCW_DM.beginAdminResponse(eb_id, I_ID);
+
+    Book book = TPCW_DM.getBookWithinTxn(eb_id, I_ID);
+
+    // Spit out the HTML
+    out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
+    out.print("<HTML> <HEAD><TITLE>TPC-W Admin Response Page</TITLE></HEAD>\n");
+    out.print("<BODY BGCOLOR=\"#FFFFFF\">\n");
+    out.print("<H1 ALIGN=\"CENTER\">TPC Web Commerce Benchmark (TPC-W)</H1>\n");
+    out.print("<H2 ALIGN=\"CENTER\"><IMG SRC=\"../tpcw/Images/tpclogo.gif\""
+              + "ALIGN=\"BOTTOM\" BORDER=\"0\" WIDTH=\"288\" "
+              + "HEIGHT=\"67\"></H2> ");
+
+    if (I_NEW_COSTstr.length() == 0 || I_NEW_IMAGE.length() == 0 ||
+        I_NEW_THUMBNAIL.length() == 0) {
+	  TPCW_DM.commit(eb_id);
+      out.print("<H2>Invalid Input</H2>");
+    } else {
+      // Update the database
+      TPCW_DM.adminUpdateWithinTxn(eb_id, writeLocations, I_ID,
+                                   I_NEW_COSTdbl.doubleValue(), I_NEW_IMAGE,
+                                   I_NEW_THUMBNAIL);
+      TPCW_DM.commit(eb_id);
+
+      out.print("<H2>Product Updated</H2>");
+      out.print("<H2>Title: " + book.i_title + "</H2>\n");
+      out.print("<P>Author: " + book.a_fname + " " + book.a_lname + "</P>\n");
+      out.print("<P><IMG SRC=\"../tpcw/Images/" + I_NEW_IMAGE +
+                "\" ALIGN=\"RIGHT\" BORDER=\"0\" WIDTH=\"200\" "
+                + "HEIGHT=\"200\">");
+      out.print("<IMG SRC=\"../tpcw/Images/" + I_NEW_THUMBNAIL +
+                "\" ALT=\"Book 1\" ALIGN=\"RIGHT\" WIDTH=\"100\""
+                + " HEIGHT=\"150\">\n");
+      out.print("Description: " + book.i_desc + "</P>\n");
+      out.print(
+          "<BLOCKQUOTE><P><B>Suggested Retail: $" + book.i_srp +
+          "</B><BR><B>Our Price: </B><FONT COLOR=\"#DD0000\"><B>" +
+          I_NEW_COSTstr + "</B></FONT><BR><B>You Save: </B><FONT "
+          + "COLOR=\"#DD0000\"><B>" +
+          Double.toString(
+              (book.i_srp - (Double.valueOf(I_NEW_COSTstr)).doubleValue())) +
+          "</B></FONT></P></BLOCKQUOTE> ");
+      out.print("<P><FONT SIZE=\"2\">" + book.i_backing + ", " + book.i_page +
+                " pages<BR>\n");
+      out.print("Published by " + book.i_publisher + "<BR>\n");
+      out.print("Publication date: " + book.i_pub_Date + "<BR>\n");
+      out.print("Dimensions (in inches): " + book.i_dimensions + "<BR>\n");
+      out.print("ISBN: " + book.i_isbn + "</FONT><BR CLEAR=\"ALL\"></P>\n");
+
+      out.print("<CENTER>");
+      url = "TPCW_search_request_servlet";
+      if (SHOPPING_ID != null) {
+        url = url + "?SHOPPING_ID=" + SHOPPING_ID;
+        if (C_ID != null)
+          url = url + "&C_ID=" + C_ID;
+      } else if (C_ID != null)
+        url = url + "?C_ID=" + C_ID;
+
+      out.print("<A HREF=\"" + res.encodeUrl(url));
+      out.print("\"><IMG SRC=\"../tpcw/Images/search_B.gif\" "
+                + "ALT=\"Search\"></A>\n");
+
+      url = "TPCW_home_interaction";
+      if (SHOPPING_ID != null) {
+        url = url + "?SHOPPING_ID=" + SHOPPING_ID;
+        if (C_ID != null)
+          url = url + "&C_ID=" + C_ID;
+      } else if (C_ID != null)
+        url = url + "?C_ID=" + C_ID;
+
+      out.print("<A HREF=\"" + res.encodeUrl(url));
+
+      out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" "
+                + "ALT=\"Home\"></A></P></CENTER>\n");
+
+      out.print("</FORM>\n");
+    }
+    out.print("</BODY></HTML>");
+    out.close();
+    return;
   }
 }

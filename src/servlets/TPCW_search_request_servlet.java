@@ -1,5 +1,5 @@
-/* 
- * TPCW_search_request_servlet.java - servlet class implements the 
+/*
+ * TPCW_search_request_servlet.java - servlet class implements the
  *                                    search request web interaction.
  *
  ************************************************************************
@@ -10,7 +10,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -21,7 +21,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -63,7 +63,7 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class TPCW_search_request_servlet extends HttpServlet {
-    
+
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
       PrintWriter out = res.getWriter();
@@ -80,12 +80,14 @@ public class TPCW_search_request_servlet extends HttpServlet {
       out.print("<BODY BGCOLOR=\"#ffffff\">\n");
       out.print("<H1 ALIGN=\"center\">TPC W Commerce Benchmark (TPC-W)</H1>\n");
       out.print("<H2 ALIGN=\"center\">");
-      out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\" " + 
+      out.print("<IMG SRC=\"../tpcw/Images/tpclogo.gif\" ALIGN=\"BOTTOM\" " +
 		"BORDER=\"0\" WIDTH=\"288\" HEIGHT=\"67\"></H2>\n");
       out.print("<H2 ALIGN=\"center\">Search Request Page</H2>");
-      
+
+      TPCW_DM.begin(eb_id);
       //Insert Promotional processing
       TPCW_promotional_processing.DisplayPromotions(out, req, res,-1);
+      TPCW_DM.commit(eb_id);
 
       out.print("<FORM ACTION=\"./TPCW_execute_search"+TPCW_Util.sessionIdString+
 		req.getRequestedSessionId()+"\" METHOD=\"get\">\n");
@@ -96,22 +98,22 @@ public class TPCW_search_request_servlet extends HttpServlet {
       out.print("<OPTION SELECTED=\"SELECTED\" VALUE=\"author\">Author</OPTION>\n");
       out.print("<OPTION VALUE=\"title\">Title</OPTION>\n");
       out.print("<OPTION VALUE=\"subject\">Subject</OPTION></SELECT></TD>\n");
-      
+
       out.print("<TD><INPUT NAME=\"search_string\" SIZE=\"30\"></TD></TR>\n");
       out.print("</TABLE>\n");
       out.print("<P ALIGN=\"CENTER\"><CENTER>\n");
-      out.print("<INPUT TYPE=\"IMAGE\" NAME=\"Search\"" + 
+      out.print("<INPUT TYPE=\"IMAGE\" NAME=\"Search\"" +
 		" SRC=\"../tpcw/Images/submit_B.gif\">\n");
-      //      out.print("<INPUT TYPE=HIDDEN NAME=\"" + TPCW_Util.SESSION_ID + 
-      //	"\" value=\"" 
+      //      out.print("<INPUT TYPE=HIDDEN NAME=\"" + TPCW_Util.SESSION_ID +
+      //	"\" value=\""
       //	+ req.getRequestedSessionId() + "\">\n");
       if(SHOPPING_ID != null)
-	  out.print("<INPUT TYPE=HIDDEN NAME=\"SHOPPING_ID\" value = \"" + 
+	  out.print("<INPUT TYPE=HIDDEN NAME=\"SHOPPING_ID\" value = \"" +
 		    SHOPPING_ID + "\">\n");
       if(C_ID!=null)
-	  out.print("<INPUT TYPE=HIDDEN NAME=\"C_ID\" value = \"" + 
+	  out.print("<INPUT TYPE=HIDDEN NAME=\"C_ID\" value = \"" +
 		    C_ID + "\">\n");
-    
+
       url = "./TPCW_home_interaction";
       if(SHOPPING_ID != null){
 	  url = url+"?SHOPPING_ID="+SHOPPING_ID;

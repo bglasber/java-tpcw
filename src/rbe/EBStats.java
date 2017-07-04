@@ -14,7 +14,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -25,7 +25,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -77,10 +77,10 @@ public class EBStats {
   private final long [] end_times;
   private int num_interactions = 0;
   private RBE rbe;
-  private final int NUM_INTERACTIONS = 100000;    
+  private final int NUM_INTERACTIONS = 100000;
 
   // List of retries/errors encount.
-  public final Vector errors = new Vector(0);  
+  public final Vector errors = new Vector(0);
 
   // web-interaction throughput over time.
   //  Sampled continuously at 1 second intervals for upto two hours.
@@ -91,13 +91,13 @@ public class EBStats {
   //  They are corrected for the slow-down factor (rbe.slowDown).
 
   long start;    // When to start test
-  
+
   // WIRT and think times are only measured over the measurement interval
   //  (MI)
   long startMI;  // When measurement interval starts.
   long startRD;  // When measurement interval ends.
   long term;     // When to terminate test
-  
+
   // Times are all expressed in milliseconds.
   public EBStats(RBE rbe,
 					  int wirt_max, int wirt_binSize,
@@ -117,7 +117,7 @@ public class EBStats {
 	 term    = startRD + rbe.slow(rampDown);
 
 	 if (DEBUG) {
-		System.out.println("start " + start + " startMI " + startMI + 
+		System.out.println("start " + start + " startMI " + startMI +
 								 " startRD " + startRD);
 	 }
 
@@ -148,18 +148,18 @@ public class EBStats {
 	 //  of the ramp-up period.
 	 if (wirt_t2 < start) return;
 	  //HWC
-	 start_times[num_interactions] = wirt_t1;
-	 end_times[num_interactions] = wirt_t2;
-	 num_interactions++;
+	 start_times[0] = wirt_t1;
+	 end_times[0] = wirt_t2;
+	 //num_interactions++;
 	 //end HWC
-	 
+
 	 b= ((int) (rbe.speed(wirt_t2-start)/1000L));
 	 if (b<through.length) {
 	     through[b]++;
 	 }
-	 
+
 	 if (DEBUG) {
-	     System.out.println("t2 " + wirt_t2 + " startMI " + startMI + 
+	     System.out.println("t2 " + wirt_t2 + " startMI " + startMI +
 				" startRD " + startRD);
 	     System.out.println("Interact " + ((wirt_t2-start)/1000L) + " b " + b);
 	 }
@@ -168,14 +168,14 @@ public class EBStats {
 	     if (DEBUG) {
 		    System.out.println("adding...");
 	     }
-		
+
 	      wirt[state].add((int) rbe.speed((wirt_t2-wirt_t1)));
 	      tt.add((int) rbe.speed(itt));
 	 }
 
   }
 
-  public void error(String message, String url) 
+  public void error(String message, String url)
   {
     EBError error = new EBError(message, url);
     errors.addElement(error);

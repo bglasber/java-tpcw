@@ -49,12 +49,13 @@ public class RESTUtil {
 
 
     public static Integer executeUpdateQuery(Builder builder, String sqlStringWithVariables, String... replacements) throws SQLException {
-
         String sqlQuery = "{ \"query\": \"" + sqlStringWithVariables + "\" }";
 
         for (int i = 0; i < replacements.length; i++) {
             sqlQuery = StringUtils.replaceOnce(sqlQuery, SQL_VARIABLE, replacements[i]);
         }
+
+		abortForDM(sqlQuery);
 
         ClientResponse response = RESTUtil.getClient(builder).post(ClientResponse.class, sqlQuery);
         if (response.getClientResponseStatus() != com.sun.jersey.api.client.ClientResponse.Status.OK) {
@@ -76,6 +77,8 @@ public class RESTUtil {
             sqlQuery = StringUtils.replaceOnce(sqlQuery, SQL_VARIABLE, replacements[i]);
         }
 
+		abortForDM(sqlQuery);
+
         ClientResponse response = RESTUtil.getClient(builder).post(ClientResponse.class, sqlQuery);
         if (response.getClientResponseStatus() != com.sun.jersey.api.client.ClientResponse.Status.OK) {
             throw new SQLException("Query " + sqlQuery + " encountered an error ");
@@ -88,6 +91,13 @@ public class RESTUtil {
 
     }
 
+	public static void abortForDM(String query) {
+          System.out.println("!!!!!!! MAKING A CALL TO REST!!!: " + query +
+                             "\n, here is a stack trace:");
+          Thread.dumpStack();
+          System.out.println("!!!!!!! NOW DYING !!!");
+          System.exit(1);
+    }
 
     public static Builder getClient(Builder builder) {
         if (builder == null) {

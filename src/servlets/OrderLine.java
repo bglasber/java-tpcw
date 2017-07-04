@@ -2,7 +2,7 @@
  * OrderLine.java - Class contains the perninent information for a single
  *                  item in a single order. Corresponds to a row from the
  *                  ORDER_LINE DB table.
- * 
+ *
  ************************************************************************
  *
  * This is part of the the Java TPC-W distribution,
@@ -11,7 +11,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -22,7 +22,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -60,9 +60,25 @@ import java.sql.*;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
+import dm.DMResultSet;
+
 public class OrderLine {
 
     public OrderLine(ResultSet rs) {
+        try {
+            ol_i_id = rs.getInt("ol_i_id");
+            i_title = rs.getString("i_title");
+            i_publisher = rs.getString("i_publisher");
+            i_cost = rs.getDouble("i_cost");
+            ol_qty = rs.getInt("ol_qty");
+            ol_discount = rs.getDouble("ol_discount");
+            ol_comments = rs.getString("ol_comments");
+        } catch (java.lang.Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public OrderLine(DMResultSet rs) {
         try {
             ol_i_id = rs.getInt("ol_i_id");
             i_title = rs.getString("i_title");

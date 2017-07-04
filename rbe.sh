@@ -2,10 +2,10 @@
 # rbe.sh to run the RBE from TPC-W Java Implementation.
 # 2003 by Jan Kiefer.
 #
-# This file is distributed "as is". It comes with no warranty and the 
+# This file is distributed "as is". It comes with no warranty and the
 # author takes no responsibility for the consequences of its use.
 #
-# Usage, distribution and modification is allowed to everyone, as long 
+# Usage, distribution and modification is allowed to everyone, as long
 # as reference to the author is given and this license note is included.
 ##############################################################################
 
@@ -88,4 +88,4 @@ filename="run"$runnr"_e"$numebs"_"$datum".m"
 
 fact="rbe.EBTPCW"$tftype"Factory"
 
-java -cp build/classes/ rbe.RBE -EB $fact $numebs -OUT $filename -RU $ru -MI $mi -RD $rd -WWW $url -ITEM 1000 -CUST 28800 -GETIM false
+java -cp build/classes/ rbe.RBE -EB $fact $numebs -OUT $filename -RU $ru -MI $mi -RD $rd -WWW $url -ITEM 1000 -CUST 2880 -GETIM false -DEBUG 1

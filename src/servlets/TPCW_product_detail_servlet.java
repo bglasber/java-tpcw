@@ -1,4 +1,4 @@
-/* 
+/*
  * TPCW_product_detail_servlet.java - Servlet Class implements product
  *                                    detail web interaction.
  *
@@ -10,7 +10,7 @@
  * Dept. and Dept. of Electrical and Computer Engineering, as a part of
  * Prof. Mikko Lipasti's Fall 1999 ECE 902 course.
  *
- * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin, 
+ * Copyright (C) 1999, 2000 by Harold Cain, Timothy Heil, Milo Martin,
  *                             Eric Weglarz, Todd Bezenek.
  *
  * This source code is distributed "as is" in the hope that it will be
@@ -21,7 +21,7 @@
  * this code under the following conditions:
  *
  * This code is distributed for non-commercial use only.
- * Please contact the maintainer for restrictions applying to 
+ * Please contact the maintainer for restrictions applying to
  * commercial use of these tools.
  *
  * Permission is granted to anyone to make or distribute copies
@@ -63,45 +63,45 @@ import javax.servlet.*;
 import javax.servlet.http.*;
 
 public class TPCW_product_detail_servlet extends HttpServlet {
-    
+
   public void doGet(HttpServletRequest req, HttpServletResponse res)
       throws IOException, ServletException {
       String url;
 	  int eb_id = Integer.parseInt( (String) req.getParameter("ebid") );
       HttpSession session = req.getSession(false);
-      String I_IDstr = req.getParameter("I_ID"); 
+      String I_IDstr = req.getParameter("I_ID");
       int I_ID = Integer.parseInt(I_IDstr);
       String C_ID = req.getParameter("C_ID");
       String SHOPPING_ID = req.getParameter("SHOPPING_ID");
-      
+
       PrintWriter out = res.getWriter();
       res.setContentType("text/html");
-      
-      Book mybook = TPCW_REST.getBook(eb_id, I_ID);
-      
-      out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n"); 
+
+      Book mybook = TPCW_DM.getBook(eb_id, I_ID);
+
+      out.print("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD W3 HTML//EN\">\n");
       out.print("<HTML><HEAD> <TITLE>TPC-W Product Detail Page</TITLE>\n");
-      out.print("</HEAD> <BODY BGCOLOR=\"#ffffff\"> <H1 ALIGN=\"center\">" + 
+      out.print("</HEAD> <BODY BGCOLOR=\"#ffffff\"> <H1 ALIGN=\"center\">" +
                   "TPC Web Commerce Benchmark (TPC-W)</H1>\n");
-      out.print("<CENTER><IMG SRC=\"../tpcw/Images/tpclogo.gif\"" + 
+      out.print("<CENTER><IMG SRC=\"../tpcw/Images/tpclogo.gif\"" +
 	      " ALIGN=\"BOTTOM\" BORDER=\"0\" WIDTH=\"288\" HEIGHT=\"67\">\n");
-      out.print("</CENTER> <H2 ALIGN=\"center\">Product Detail Page</H2>\n"); 
+      out.print("</CENTER> <H2 ALIGN=\"center\">Product Detail Page</H2>\n");
 
       out.print("<H2> Title: "+mybook.i_title +"</H2>\n");
       out.print("<P>Author: "+mybook.a_fname +" "+mybook.a_lname + "<BR>\n");
       out.print("Subject: " + mybook.i_subject + "\n");
-      out.print("<P><IMG SRC=../tpcw/Images/"+mybook.i_image + 
+      out.print("<P><IMG SRC=../tpcw/Images/"+mybook.i_image +
 	    " ALIGN=\"RIGHT\" BORDER=\"0\" WIDTH=\"200\" HEIGHT=\"200\">\n");
       out.print("Decription: <I>"+ mybook.i_desc + "</I></P>\n");
-      out.print("<BLOCKQUOTE><P><B>Suggested Retail: " + 
+      out.print("<BLOCKQUOTE><P><B>Suggested Retail: " +
 		  mybook.i_srp + "</B>\n");
       out.print("<BR><B>Our Price:</B>\n");
-      out.print("<FONT COLOR=\"#dd0000\"> <B> " + mybook.i_cost + 
+      out.print("<FONT COLOR=\"#dd0000\"> <B> " + mybook.i_cost +
 		  "</B></FONT><BR>\n");
-      out.print("<B>You Save:</B><FONT COLOR=\"#dd0000\"> $" 
+      out.print("<B>You Save:</B><FONT COLOR=\"#dd0000\"> $"
 		  + (mybook.i_srp - mybook.i_cost) + "</B></FONT></P>\n");
       out.print("</BLOCKQUOTE><DL><DT><FONT SIZE=\"2\">\n");
-      out.print("Backing: " + mybook.i_backing + ", " + mybook.i_page + 
+      out.print("Backing: " + mybook.i_backing + ", " + mybook.i_page +
 		  " pages<BR>\n");
       out.print("Published by " + mybook.i_publisher +"<BR>\n");
       out.print("Publication date: " + mybook.i_pub_Date +"<BR>\n");
@@ -130,7 +130,7 @@ public class TPCW_product_detail_servlet extends HttpServlet {
       }
       else if(C_ID!=null)
 	  url = url + "?C_ID=" + C_ID;
-      
+
       out.print("<A HREF=\"" + res.encodeUrl(url));
 
       out.print("\"><IMG SRC=\"../tpcw/Images/search_B.gif\"" +
@@ -143,9 +143,9 @@ public class TPCW_product_detail_servlet extends HttpServlet {
       }
       else if(C_ID!=null)
 	  url = url + "?C_ID=" + C_ID;
-      
-      out.print("<A HREF=\"" + res.encodeUrl(url)); 
-      out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" " + 
+
+      out.print("<A HREF=\"" + res.encodeUrl(url));
+      out.print("\"><IMG SRC=\"../tpcw/Images/home_B.gif\" " +
 		"ALT=\"Home\"></A>\n");
 
       url = "TPCW_admin_request_servlet?I_ID=" + I_ID;
@@ -153,9 +153,9 @@ public class TPCW_product_detail_servlet extends HttpServlet {
 	  url = url + "&SHOPPING_ID=" + SHOPPING_ID;
       if(C_ID != null)
 	  url = url + "&C_ID=" + C_ID;
-       
+
       out.print("<A HREF=\"" + res.encodeUrl(url));
-      out.print("\"><IMG SRC=\"../tpcw/Images/update_B.gif\"" + 
+      out.print("\"><IMG SRC=\"../tpcw/Images/update_B.gif\"" +
 		" ALT=\"Update\"></A>\n");
 
       out.print("</BODY> </HTML>\n");
